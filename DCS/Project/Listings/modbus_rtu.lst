@@ -1,0 +1,386 @@
+C51 COMPILER V9.60.7.0   MODBUS_RTU                                                        06/27/2025 11:18:44 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE MODBUS_RTU
+OBJECT MODULE PLACED IN ..\Output\modbus_rtu.obj
+COMPILER INVOKED BY: D:\APP\Keil_v5\C51\BIN\C51.EXE ..\Emembed\Src\modbus_rtu.c LARGE OPTIMIZE(8,SPEED) BROWSE INCDIR(..
+                    -\Driver;..\SYSTEM\Inc;..\BSP\Inc;..\Core\Inc;..\Emembed\Inc) DEBUG OBJECTEXTEND PRINT(.\Listings\modbus_rtu.lst) OBJECT(
+                    -..\Output\modbus_rtu.obj)
+
+line level    source
+
+   1          #include "modbus_rtu.h"
+   2          
+   3          MODBIS_INFO modbus;
+   4          
+   5          /**
+   6           * @brief       modbus_rtu  无奇偶校验
+   7           *
+   8           * @param   void
+   9           *
+  10           * @return  void 
+  11          **/
+  12          void Modbus_Event( void )
+  13          {
+  14   1          uint16_t crc,rccrc;
+  15   1          
+  16   1          /*1.接收完毕                                           */
+  17   1          if( rs485.RX4_rev_end_Flag == 1 )
+  18   1          {
+  19   2              /*2.清空接收完毕标志位                              */    
+  20   2              rs485.RX4_rev_end_Flag = 0;
+  21   2      
+  22   2              /*3.CRC校验                                         */
+  23   2              crc = MODBUS_CRC16(rs485.RX4_buf, rs485.RX4_rev_cnt-2);
+  24   2              rccrc = (rs485.RX4_buf[rs485.RX4_rev_cnt-1]) | (rs485.RX4_buf[rs485.RX4_rev_cnt-2]<<8);
+  25   2      
+  26   2              /*4.清空接收计数                                    */
+  27   2              rs485.RX4_rev_cnt = 0; 
+  28   2      
+  29   2              /*5.CRC校验通过，进行地址域校验                      */
+  30   2              if( crc == rccrc )
+  31   2              {
+  32   3                  /*6.地址域校验通过，进入相应功能函数进行处理      */
+  33   3                  if( rs485.RX4_buf[0] == MY_ADDR )
+  34   3                  {
+  35   4                      switch ( rs485.RX4_buf[1] )
+  36   4                      {
+  37   5                          case 0x03:          Modbus_Fun3();          break;
+  38   5                          case 0x04:          Modbus_Fun4();          break;
+  39   5                          case 0x06:          Modbus_Fun6();      break;    
+  40   5      
+  41   5                          case 0x10:      Modbus_Fun16();     break;  
+  42   5                          default:                            break;
+  43   5                      }
+  44   4                  }
+  45   3              }
+  46   2          }
+  47   1      }
+  48          
+  49          void Modbus_Fun3()
+  50          {
+  51   1          uint8_t start_addr_03 = 3;              //Slave reply  DATA1_H address
+  52   1          uint16_t i;
+  53   1          for( i = 0; i < 6; i++)
+C51 COMPILER V9.60.7.0   MODBUS_RTU                                                        06/27/2025 11:18:44 PAGE 2   
+
+  54   1          {
+  55   2              switch (i)
+  56   2              {
+  57   3               case 0:
+  58   3                  lcd_info.channel_num = rs485.RX4_buf[start_addr_03 + 1];
+  59   3      
+  60   3                   break;
+  61   3       
+  62   3               case 1:
+  63   3                  lcd_info.sync_flag = rs485.RX4_buf[start_addr_03 + 1];
+  64   3                  if( lcd_info.sync_flag == 1 )
+  65   3                  {
+  66   4                      send_to_slave_16();
+  67   4                  }
+  68   3                   break;
+  69   3       
+  70   3               case 2:
+  71   3                  lcd_info.fan_level = rs485.RX4_buf[start_addr_03 + 1];
+  72   3      
+  73   3                   break; 
+  74   3       
+  75   3               case 3:
+  76   3                  lcd_info.power_level = rs485.RX4_buf[start_addr_03 + 1];
+  77   3      
+  78   3                   break;
+  79   3       
+  80   3               case 4:
+  81   3                  lcd_info.alarm_temp_val = rs485.RX4_buf[start_addr_03 + 1];
+  82   3      
+  83   3                   break;   
+  84   3       
+  85   3               case 5:
+  86   3                  lcd_info.mode_num = rs485.RX4_buf[start_addr_03 + 1];
+  87   3       
+  88   3                   break;   
+  89   3       
+  90   3               default:
+  91   3                   break;
+  92   3              }
+  93   2              start_addr_03 += 2;
+  94   2          }
+  95   1          lcd_info.lcd_connect_flag = 1;
+  96   1      
+  97   1          screen_all_dis();
+  98   1      }
+  99          
+ 100          
+ 101          void Modbus_Fun4()
+ 102          {
+ 103   1          uint8_t start_addr_04 = 3;              //Slave reply  DATA1_H address
+ 104   1          uint16_t i;
+ 105   1          for( i = 0; i < 2; i++)
+ 106   1          {
+ 107   2              switch (i)
+ 108   2              {
+ 109   3              case 0:
+ 110   3                  alarm_dis( rs485.RX4_buf[start_addr_04 + 1] );
+ 111   3      
+ 112   3                  break;
+ 113   3      
+ 114   3              case 1:
+ 115   3                  lcd_info.signal_in = rs485.RX4_buf[start_addr_04 + 1];
+C51 COMPILER V9.60.7.0   MODBUS_RTU                                                        06/27/2025 11:18:44 PAGE 3   
+
+ 116   3                  fan_rotate();
+ 117   3                  break;
+ 118   3      
+ 119   3               default:
+ 120   3                   break;
+ 121   3              }
+ 122   2              start_addr_04 += 2;
+ 123   2          }
+ 124   1          modbus.modbus_04_rcv_over = 0;
+ 125   1      }
+ 126          
+ 127          
+ 128          void Modbus_Fun6( void )
+ 129          {
+ 130   1          if(rs485.RX4_buf[3] == 0x05)
+ 131   1          {
+ 132   2              get_slave_params_03();
+ 133   2          }
+ 134   1          if(rs485.RX4_buf[3] == 0x03)
+ 135   1          {
+ 136   2          }
+ 137   1      
+ 138   1      }
+ 139          
+ 140          void Modbus_Fun16( void )
+ 141          {
+ 142   1      
+ 143   1      }
+ 144          
+ 145          /**
+ 146           * @brief       crc校验函数
+ 147           * 
+ 148           * @param   buf：  Address(1 byte) +Funtion(1 byte) ）+Data(n byte)   
+ 149           * @param   length:数据长度           
+ 150           * 
+ 151            @return  crc16:crc校验的值 2byte
+ 152           */
+ 153          uint16_t MODBUS_CRC16(uint8_t *buf, uint8_t length)
+ 154          {
+ 155   1              uint8_t i;
+ 156   1              uint16_t        crc16;
+ 157   1      
+ 158   1          /* 1, 预置16位CRC寄存器为0xffff（即全为1）                          */
+ 159   1              crc16 = 0xffff; 
+ 160   1      
+ 161   1              do
+ 162   1              {
+ 163   2              /* 2, 把8位数据与16位CRC寄存器的低位相异或，把结果放于CRC寄存器     */    
+             -    
+ 164   2                      crc16 ^= (uint16_t)*buf;                //
+ 165   2                      for(i=0; i<8; i++)              
+ 166   2                      {
+ 167   3                  /* 3, 如果最低位为1，把CRC寄存器的内容右移一位(朝低位)，用0填补最高
+             -位 再异或0xA001    */
+ 168   3                              if(crc16 & 1)
+ 169   3                  {
+ 170   4                      crc16 = (crc16 >> 1) ^ 0xA001;
+ 171   4                  }
+ 172   3                  /* 4, 如果最低位为0，把CRC寄存器的内容右移一位(朝低位)，用0填补最高
+             -位                */
+ 173   3                  else
+ 174   3                  {
+C51 COMPILER V9.60.7.0   MODBUS_RTU                                                        06/27/2025 11:18:44 PAGE 4   
+
+ 175   4                      crc16 >>= 1;
+ 176   4                  }           
+ 177   3                      }
+ 178   2                      buf++;
+ 179   2              }while(--length != 0);
+ 180   1      
+ 181   1              return  (crc16);
+ 182   1      }
+ 183          
+ 184          void get_slave_params_03( void )
+ 185          {
+ 186   1          uint8_t send_buf[8] = {0xDC,0x03,0x00,0x00,0x00,0x06,0x45,0xD7};
+ 187   1      
+ 188   1          while ( modbus.modbus_04_rcv_over == 0 );
+ 189   1      
+ 190   1          memcpy(rs485.TX4_buf,send_buf,8);
+ 191   1          rs485.TX4_send_bytelength = 8;
+ 192   1      
+ 193   1          DR_485 = 1;                                 //485可以发送
+ 194   1          delay_ms(2);
+ 195   1          S4CON |= S4TI;                              //开始发送
+ 196   1          delay_ms(1);
+ 197   1      }
+ 198          
+ 199          void get_slave_statu_04( void )
+ 200          {
+ 201   1          uint8_t send_buf[8] = {0xDC,0x04,0x00,0x00,0x00,0x02,0x46,0x63};
+ 202   1      
+ 203   1          //while ( modbus.modbus_04_rcv_over == 0 );
+ 204   1      
+ 205   1          memcpy(rs485.TX4_buf,send_buf,8);
+ 206   1          rs485.TX4_send_bytelength = 8;
+ 207   1      
+ 208   1          DR_485 = 1;                                 //485可以发送
+ 209   1          delay_ms(2);
+ 210   1          S4CON |= S4TI;                              //开始发送
+ 211   1          delay_ms(1);
+ 212   1      }
+ 213          
+ 214          void send_to_slave_06( void )
+ 215          {
+ 216   1          uint8_t send_buf[8];
+ 217   1          uint16_t crc;
+ 218   1      
+ 219   1          while ( modbus.modbus_04_rcv_over == 0 );
+ 220   1      
+ 221   1          send_buf[0] = 0xDC;
+ 222   1          send_buf[1] = 0x06;
+ 223   1          send_buf[2] = 0x00;
+ 224   1          send_buf[3] = 0x05;
+ 225   1          send_buf[4] = 0x00;
+ 226   1          send_buf[5] = lcd_info.mode_num;
+ 227   1         
+ 228   1          crc = MODBUS_CRC16(send_buf,6);
+ 229   1          send_buf[6] = crc>>8;
+ 230   1          send_buf[7] = crc;
+ 231   1      
+ 232   1          memcpy(rs485.TX4_buf,send_buf,8);
+ 233   1         
+ 234   1          rs485.TX4_send_bytelength = 8;
+ 235   1          DR_485 = 1;                                 //485可以发送
+ 236   1          delay_ms(2);
+C51 COMPILER V9.60.7.0   MODBUS_RTU                                                        06/27/2025 11:18:44 PAGE 5   
+
+ 237   1          S4CON |= S4TI;                              //开始发送
+ 238   1      
+ 239   1          delay_ms(10);
+ 240   1      }
+ 241          
+ 242          void send_to_slave_16( void )
+ 243          {
+ 244   1         uint8_t send_buf[19];
+ 245   1         uint16_t crc;
+ 246   1      
+ 247   1         while ( modbus.modbus_04_rcv_over == 0 );
+ 248   1      
+ 249   1         send_buf[0] = 0xDC;
+ 250   1         send_buf[1] = 0x10;
+ 251   1         send_buf[2] = 0x00;
+ 252   1         send_buf[3] = 0x00;
+ 253   1         send_buf[4] = 0x00;
+ 254   1         send_buf[5] = 0x05;
+ 255   1         send_buf[6] = 0x0A;
+ 256   1      
+ 257   1         send_buf[7] = 0x00;
+ 258   1         send_buf[8] = lcd_info.channel_num;
+ 259   1      
+ 260   1         send_buf[9] = 0x00;
+ 261   1         send_buf[10] = lcd_info.sync_flag;
+ 262   1      
+ 263   1         send_buf[11] = 0x00;
+ 264   1         send_buf[12] = lcd_info.fan_level;
+ 265   1      
+ 266   1         send_buf[13] = 0x00;
+ 267   1         send_buf[14] = lcd_info.power_level;
+ 268   1      
+ 269   1         send_buf[15] = 0x00;
+ 270   1         send_buf[16] = lcd_info.alarm_temp_val;
+ 271   1      
+ 272   1         crc = MODBUS_CRC16(send_buf,17);
+ 273   1      
+ 274   1         send_buf[17] = crc>>8;
+ 275   1         send_buf[18] = crc;
+ 276   1      
+ 277   1         memcpy(rs485.TX4_buf,send_buf,19);
+ 278   1         
+ 279   1         rs485.TX4_send_bytelength = 19;
+ 280   1         DR_485 = 1;                                 //485可以发送
+ 281   1         delay_ms(2);
+ 282   1         S4CON |= S4TI;                              //开始发送
+ 283   1         delay_ms(1);
+ 284   1         printf("ttt \r\n");
+ 285   1      }
+ 286          
+ 287          void get_slave_status( void )
+ 288          {
+ 289   1          if(( modbus.scan_flag_04 == 1) && ( modbus.scan_flag_04_allow == 1 ))
+ 290   1          {
+ 291   2              get_slave_statu_04();
+ 292   2              modbus.scan_flag_04 = 0;
+ 293   2          }
+ 294   1      }
+ 295          
+ 296          void slave_sleep_ctrl( void )
+ 297          {
+ 298   1          uint8_t send_buf[8];
+C51 COMPILER V9.60.7.0   MODBUS_RTU                                                        06/27/2025 11:18:44 PAGE 6   
+
+ 299   1          uint16_t crc;
+ 300   1      
+ 301   1          while ( modbus.modbus_04_rcv_over == 0 );
+ 302   1      
+ 303   1          send_buf[0] = 0xDC;
+ 304   1          send_buf[1] = 0x06;
+ 305   1          send_buf[2] = 0x00;
+ 306   1          send_buf[3] = 0x04;
+ 307   1          send_buf[4] = 0x00;
+ 308   1          send_buf[5] = 0x01;
+ 309   1         
+ 310   1          crc = MODBUS_CRC16(send_buf,6);
+ 311   1          send_buf[6] = crc>>8;
+ 312   1          send_buf[7] = crc;
+ 313   1      
+ 314   1          memcpy(rs485.TX4_buf,send_buf,8);
+ 315   1         
+ 316   1          rs485.TX4_send_bytelength = 8;
+ 317   1          DR_485 = 1;                                 //485可以发送
+ 318   1          delay_ms(2);
+ 319   1          S4CON |= S4TI;                              //开始发送
+ 320   1          delay_ms(1);
+ 321   1      }
+ 322          
+ 323          void slave_work_ctrl( void )
+ 324          {
+ 325   1          uint8_t send_buf[8];
+ 326   1          uint16_t crc;
+ 327   1      
+ 328   1          while ( modbus.modbus_04_rcv_over == 0 );
+ 329   1      
+ 330   1          send_buf[0] = 0xDC;
+ 331   1          send_buf[1] = 0x06;
+ 332   1          send_buf[2] = 0x00;
+ 333   1          send_buf[3] = 0x03;
+ 334   1          send_buf[4] = 0x00;
+ 335   1          send_buf[5] = 0x01;
+ 336   1         
+ 337   1          crc = MODBUS_CRC16(send_buf,6);
+ 338   1          send_buf[6] = crc>>8;
+ 339   1          send_buf[7] = crc;
+ 340   1      
+ 341   1          memcpy(rs485.TX4_buf,send_buf,8);
+ 342   1         
+ 343   1          rs485.TX4_send_bytelength = 8;
+ 344   1          DR_485 = 1;                                 //485可以发送
+ 345   1          delay_ms(2);
+ 346   1          S4CON |= S4TI;                              //开始发送
+ 347   1          delay_ms(1);
+ 348   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   1139    ----
+   CONSTANT SIZE    =     23    ----
+   XDATA SIZE       =     10      68
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

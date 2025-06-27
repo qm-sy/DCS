@@ -1,0 +1,159 @@
+C51 COMPILER V9.60.7.0   EEPROM_CRL                                                        06/27/2025 11:17:30 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE EEPROM_CRL
+OBJECT MODULE PLACED IN ..\Output\eeprom_crl.obj
+COMPILER INVOKED BY: D:\APP\Keil_v5\C51\BIN\C51.EXE ..\BSP\Src\eeprom_crl.c LARGE OPTIMIZE(8,SPEED) BROWSE INCDIR(..\BSP
+                    -\Inc;..\Core\Inc;..\Driver;..\Emembed\Inc;..\SYSTEM\Inc) DEBUG OBJECTEXTEND PRINT(.\Listings\eeprom_crl.lst) OBJECT(..\O
+                    -utput\eeprom_crl.obj)
+
+line level    source
+
+   1          #include "eeprom_crl.h"
+   2          
+   3          uint8_t mode_info[5];
+   4          
+   5          /**
+   6           * @brief       eeprom状态判定，是否写入过
+   7           *
+   8           * @param   
+   9           *
+  10           * @return  void
+  11          **/
+  12          void eeprom_statu_judge( void )
+  13          {
+  14   1          uint8_t eeprom_statu_flag;
+  15   1          uint8_t i,j;
+  16   1          uint16_t addr;
+  17   1      
+  18   1          eeprom_statu_flag = ISP_Read(EEPROM_STATU_JUDGE);
+  19   1      
+  20   1          if( eeprom_statu_flag == 0xFF)
+  21   1          {
+  22   2              ac_dc.channel_num       = 0x07;          // 0000 0111  三路全开
+  23   2              channel_close();
+  24   2      
+  25   2              ac_dc.sync_flag         = 0x00;          // 0000 0001  sync默认关
+  26   2              sync_ctrl();
+  27   2      
+  28   2              ac_dc.fan_level         = 0x03;          // 3  风扇默认三档
+  29   2              fan_ctrl(ac_dc.fan_level);
+  30   2      
+  31   2              ac_dc.power_level       = 0x32;          // 50         220V输出50%功率
+  32   2              ac_220v_crl(ac_dc.power_level);
+  33   2              
+  34   2              ac_dc.alarm_temp_val    = 0x50;          // 报警温度默认80℃
+  35   2      
+  36   2              mode_info[0] = ac_dc.channel_num;
+  37   2              mode_info[1] = ac_dc.sync_flag;
+  38   2              mode_info[2] = ac_dc.fan_level;
+  39   2              mode_info[3] = ac_dc.power_level;
+  40   2              mode_info[4] = ac_dc.alarm_temp_val;
+  41   2      
+  42   2              for( j = 0; j < 5; j++)
+  43   2              {
+  44   3                  Buzzer = 0;
+  45   3                  addr = ((j + 1) * 2) << 8;
+  46   3                  ISP_Earse(addr);
+  47   3                  for( i = 0; i < 5; i++)
+  48   3                  {
+  49   4                      ISP_Write(addr,mode_info[i]);
+  50   4                      addr++;
+  51   4                      Buzzer = 1;
+  52   4                  }
+  53   3              }
+C51 COMPILER V9.60.7.0   EEPROM_CRL                                                        06/27/2025 11:17:30 PAGE 2   
+
+  54   2              ac_dc.mode_num = 1;
+  55   2              eeprom_mode_record();
+  56   2          }else
+  57   1          {
+  58   2              eeprom_data_init(); 
+  59   2          }
+  60   1      }
+  61          
+  62          void eeprom_mode_record( void )
+  63          {
+  64   1          ISP_Earse(MODE_ADDR);
+  65   1          ISP_Write(MODE_ADDR,ac_dc.mode_num);
+  66   1          ISP_Write(EEPROM_STATU_JUDGE,0x58);
+  67   1      }
+  68          
+  69          /**
+  70           * @brief       eeprom 数据写入
+  71           *
+  72           * @param   
+  73           *
+  74           * @return  void
+  75          **/
+  76          void eeprom_data_record( void )
+  77          {
+  78   1          uint8_t i;
+  79   1          uint16_t addr;
+  80   1      
+  81   1          mode_info[0] = ac_dc.channel_num;
+  82   1          mode_info[1] = ac_dc.sync_flag;
+  83   1          mode_info[2] = ac_dc.fan_level;
+  84   1          mode_info[3] = ac_dc.power_level;
+  85   1          mode_info[4] = ac_dc.alarm_temp_val;
+  86   1      
+  87   1          addr = (ac_dc.mode_num * 2) << 8;
+  88   1          ISP_Earse(addr);
+  89   1      
+  90   1          for( i = 0; i < 5; i++)
+  91   1          {
+  92   2              ISP_Write(addr,mode_info[i]);
+  93   2              addr++;
+  94   2          }
+  95   1      }
+  96          
+  97          /**
+  98           * @brief       eeprom 数据初始化
+  99           *
+ 100           * @param   
+ 101           *
+ 102           * @return  void
+ 103          **/
+ 104          void eeprom_data_init( void )
+ 105          {
+ 106   1          uint8_t i;
+ 107   1          uint16_t addr;
+ 108   1      
+ 109   1          ac_dc.mode_num = ISP_Read(MODE_ADDR);
+ 110   1      
+ 111   1          addr = (ac_dc.mode_num * 2) << 8;
+ 112   1          for( i = 0; i < 5; i++)
+ 113   1          {
+ 114   2              mode_info[i] = ISP_Read(addr);
+ 115   2              addr++;
+C51 COMPILER V9.60.7.0   EEPROM_CRL                                                        06/27/2025 11:17:30 PAGE 3   
+
+ 116   2          }
+ 117   1          ac_dc.channel_num = mode_info[0];
+ 118   1          channel_close();
+ 119   1      
+ 120   1          ac_dc.sync_flag   = mode_info[1];
+ 121   1          sync_ctrl();
+ 122   1      
+ 123   1          ac_dc.fan_level   = mode_info[2];
+ 124   1          fan_ctrl(ac_dc.fan_level);
+ 125   1      
+ 126   1          ac_dc.power_level = mode_info[3];
+ 127   1          ac_220v_crl(ac_dc.power_level);
+ 128   1      
+ 129   1          ac_dc.alarm_temp_val    = mode_info[4];
+ 130   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    498    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =      5      10
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

@@ -1,0 +1,237 @@
+C51 COMPILER V9.60.7.0   LCD                                                               05/23/2025 10:50:36 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE LCD
+OBJECT MODULE PLACED IN ..\Output\lcd.obj
+COMPILER INVOKED BY: D:\APP\Keil_v5\C51\BIN\C51.EXE ..\BSP\Src\lcd.c LARGE OPTIMIZE(8,SPEED) BROWSE INCDIR(..\Driver;..\
+                    -SYSTEM\Inc;..\BSP\Inc;..\Core\Inc;..\Emembed\Inc) DEBUG OBJECTEXTEND PRINT(.\Listings\lcd.lst) OBJECT(..\Output\lcd.obj)
+
+line level    source
+
+   1          #include "lcd.h"
+*** ERROR C129 IN LINE 6 OF ..\BSP\Inc\lcd.h: missing ';' before 'idata'
+   2          
+   3          
+   4          u8      idata   LCD_buff[20];   //LCD显存
+   5          
+   6          /****************** 对第1~5数字装载显示函数 ***************************/
+   7          u8 code t_display[]={                                           //标准字库
+   8          //       0    1    2    3    4    5    6    7    8    9    A    B    C    D    E    F
+   9                  0x3F,0x06,0x5B,0x4F,0x66,0x6D,0x7D,0x07,0x7F,0x6F,0x77,0x7C,0x39,0x5E,0x79,0x71,
+  10          //black  -     H    J    K        L        N    o   P    U     t    G    Q    r   M    y
+  11                  0x00,0x40,0x76,0x1E,0x70,0x38,0x37,0x5C,0x73,0x3E,0x78,0x3d,0x67,0x50,0x37,0x6e};
+  12          
+  13          u8 code seg_pos[]={0,2,5,0,2,4,4,2,0,6,4,2,0,6};
+  14          
+  15          
+  16          
+  17          /********************** 将显示内容导入显存 *****************************/
+  18          void    LoadToLcd(void)
+  19          {
+  20                  C0SEGV0  = LCD_buff[0];     // C0SEG 7~0数据寄存器
+  21                  C0SEGV1  = LCD_buff[1];     // C0SEG 15~8数据寄存器
+  22                  C0SEGV2  = LCD_buff[2];     // C0SEG 23~16数据寄存器
+  23                  C0SEGV3  = LCD_buff[3];     // C0SEG 31~24数据寄存器
+  24                  C0SEGV4  = LCD_buff[4];     // C0SEG 39~32数据寄存器
+  25                  C1SEGV0  = LCD_buff[5];     // C1SEG 7~0数据寄存器
+  26                  C1SEGV1  = LCD_buff[6];     // C1SEG 15~8数据寄存器
+  27                  C1SEGV2  = LCD_buff[7];     // C1SEG 23~16数据寄存器
+  28                  C1SEGV3  = LCD_buff[8];     // C1SEG 31~24数据寄存器
+  29                  C1SEGV4  = LCD_buff[9];     // C1SEG 39~32数据寄存器
+  30                  C2SEGV0  = LCD_buff[10];    // C2SEG 7~0数据寄存器
+  31                  C2SEGV1  = LCD_buff[11];    // C2SEG 15~8数据寄存器
+  32                  C2SEGV2  = LCD_buff[12];    // C2SEG 23~16数据寄存器
+  33                  C2SEGV3  = LCD_buff[13];    // C2SEG 31~24数据寄存器
+  34                  C2SEGV4  = LCD_buff[14];    // C2SEG 39~32数据寄存器
+  35                  C3SEGV0  = LCD_buff[15];    // C3SEG 7~0数据寄存器
+  36                  C3SEGV1  = LCD_buff[16];    // C3SEG 15~8数据寄存器
+  37                  C3SEGV2  = LCD_buff[17];    // C3SEG 23~16数据寄存器
+  38                  C3SEGV3  = LCD_buff[18];    // C3SEG 31~24数据寄存器
+  39                  C3SEGV4  = LCD_buff[19];    // C3SEG 39~32数据寄存器
+  40          }
+  41          
+  42          void    LCD_load(u8 n, u8 dat)          //n为第几个数字，为1~5，dat为要显示的数字
+  43          {
+  44          
+  45          
+  46                  if((n == 0) || (n >= 15))       
+  47                          return; //合法值 1~5
+  48          
+  49                  dat =  t_display[dat];
+  50          
+  51                  switch( n )
+  52                  {
+  53                          case 1:
+C51 COMPILER V9.60.7.0   LCD                                                               05/23/2025 10:50:36 PAGE 2   
+
+  54                          case 2:
+  55                          case 3:
+  56                                  LCD_buff[0]  &= ~(1<<seg_pos[n-1]);
+  57                                  LCD_buff[5]  &= ~(3<<seg_pos[n-1]);
+  58                                  LCD_buff[10] &= ~(3<<seg_pos[n-1]);
+  59                                  LCD_buff[15] &= ~(3<<seg_pos[n-1]);
+  60                          
+  61                                  if(dat & 0x01)          LCD_buff[15] |= (1<<seg_pos[n-1]);      //T_SEG_ABC[n];         //A
+  62                                  if(dat & 0x02)          LCD_buff[15] |= (2<<seg_pos[n-1]);      //T_SEG_ABC[n];         //B
+  63                                  if(dat & 0x04)          LCD_buff[5]  |= (2<<seg_pos[n-1]);      //T_SEG_ABC[n];         //C
+  64                                  if(dat & 0x08)          LCD_buff[0]  |= (1<<seg_pos[n-1]);      //T_SEG_DEFG[n];        //D
+  65                                  if(dat & 0x10)          LCD_buff[5]  |= (1<<seg_pos[n-1]);      //T_SEG_DEFG[n];        //E
+  66                                  if(dat & 0x20)          LCD_buff[10] |= (1<<seg_pos[n-1]);      //T_SEG_DEFG[n];        //F
+  67                                  if(dat & 0x40)          LCD_buff[10] |= (2<<seg_pos[n-1]);      //T_SEG_DEFG[n];        //G             
+  68                                  break;
+  69                          
+  70                          case 4:
+  71                                  LCD_buff[0]  &= ~(1<<7);
+  72                                  LCD_buff[5]  &= ~(1<<7);
+  73                                  LCD_buff[10] &= ~(1<<7);
+  74                                  LCD_buff[15] &= ~(1<<7);
+  75          //                      LCD_buff[1]  &= ~(1<<0);
+  76                                  LCD_buff[6]  &= ~(1<<0);
+  77                                  LCD_buff[11] &= ~(1<<0);
+  78                                  LCD_buff[16] &= ~(1<<0);
+  79                          
+  80                                  if(dat & 0x01)          LCD_buff[15] |= (1<<7); //T_SEG_ABC[n];         //A
+  81                                  if(dat & 0x02)          LCD_buff[16] |= (1<<0); //T_SEG_ABC[n];         //B
+  82                                  if(dat & 0x04)          LCD_buff[6]  |= (1<<0); //T_SEG_ABC[n];         //C
+  83                                  if(dat & 0x08)          LCD_buff[0]  |= (1<<7); //T_SEG_DEFG[n];        //D
+  84                                  if(dat & 0x10)          LCD_buff[5]  |= (1<<7); //T_SEG_DEFG[n];        //E
+  85                                  if(dat & 0x20)          LCD_buff[10] |= (1<<7); //T_SEG_DEFG[n];        //F
+  86                                  if(dat & 0x40)          LCD_buff[11] |= (1<<0); //T_SEG_DEFG[n];        //G                             
+  87                                  break;
+  88                          
+  89                          case 5:
+  90                          case 6:                 
+  91                                  LCD_buff[1]  &= ~(1<<seg_pos[n-1]);
+  92                                  LCD_buff[6]  &= ~(3<<seg_pos[n-1]);
+  93                                  LCD_buff[11] &= ~(3<<seg_pos[n-1]);
+  94                                  LCD_buff[16] &= ~(3<<seg_pos[n-1]);
+  95                          
+  96                                  if(dat & 0x01)          LCD_buff[16] |= (1<<seg_pos[n-1]);      //T_SEG_ABC[n];         //A
+  97                                  if(dat & 0x02)          LCD_buff[16] |= (2<<seg_pos[n-1]);      //T_SEG_ABC[n];         //B
+  98                                  if(dat & 0x04)          LCD_buff[6]  |= (2<<seg_pos[n-1]);      //T_SEG_ABC[n];         //C
+  99                                  if(dat & 0x08)          LCD_buff[1]  |= (1<<seg_pos[n-1]);      //T_SEG_DEFG[n];        //D
+ 100                                  if(dat & 0x10)          LCD_buff[6]  |= (1<<seg_pos[n-1]);      //T_SEG_DEFG[n];        //E
+ 101                                  if(dat & 0x20)          LCD_buff[11] |= (1<<seg_pos[n-1]);      //T_SEG_DEFG[n];        //F
+ 102                                  if(dat & 0x40)          LCD_buff[11] |= (2<<seg_pos[n-1]);      //T_SEG_DEFG[n];        //G             
+ 103                                  break;
+ 104                          
+ 105                          case 14:                        
+ 106                                  LCD_buff[1]  &= ~(3<<seg_pos[n-1]);
+ 107                                  LCD_buff[6]  &= ~(3<<seg_pos[n-1]);
+ 108                                  LCD_buff[11] &= ~(3<<seg_pos[n-1]);
+ 109                                  LCD_buff[16] &= ~(2<<seg_pos[n-1]);
+ 110                          
+ 111                                  if(dat & 0x01)          LCD_buff[1]   |= (2<<seg_pos[n-1]);     //T_SEG_ABC[n];         //A
+ 112                                  if(dat & 0x02)          LCD_buff[1]   |= (1<<seg_pos[n-1]);     //T_SEG_ABC[n];         //B
+ 113                                  if(dat & 0x04)          LCD_buff[11]  |= (1<<seg_pos[n-1]);     //T_SEG_ABC[n];         //C
+ 114                                  if(dat & 0x08)          LCD_buff[16]  |= (2<<seg_pos[n-1]);     //T_SEG_DEFG[n];        //D
+ 115                                  if(dat & 0x10)          LCD_buff[11]  |= (2<<seg_pos[n-1]);     //T_SEG_DEFG[n];        //E
+C51 COMPILER V9.60.7.0   LCD                                                               05/23/2025 10:50:36 PAGE 3   
+
+ 116                                  if(dat & 0x20)          LCD_buff[6]   |= (2<<seg_pos[n-1]);     //T_SEG_DEFG[n];        //F
+ 117                                  if(dat & 0x40)          LCD_buff[6]   |= (1<<seg_pos[n-1]);     //T_SEG_DEFG[n];        //G             
+ 118                                  break;          
+ 119                          
+ 120                          case 13:        
+ 121                          case 12:
+ 122                          case 11:
+ 123                          case 10:                        
+ 124                                  LCD_buff[2]  &= ~(3<<seg_pos[n-1]);
+ 125                                  LCD_buff[7]  &= ~(3<<seg_pos[n-1]);
+ 126                                  LCD_buff[12] &= ~(3<<seg_pos[n-1]);
+ 127                                  LCD_buff[17] &= ~(2<<seg_pos[n-1]);
+ 128                          
+ 129                                  if(dat & 0x01)          LCD_buff[2]   |= (2<<seg_pos[n-1]);     //T_SEG_ABC[n];         //A
+ 130                                  if(dat & 0x02)          LCD_buff[2]   |= (1<<seg_pos[n-1]);     //T_SEG_ABC[n];         //B
+ 131                                  if(dat & 0x04)          LCD_buff[12]  |= (1<<seg_pos[n-1]);     //T_SEG_ABC[n];         //C
+ 132                                  if(dat & 0x08)          LCD_buff[17]  |= (2<<seg_pos[n-1]);     //T_SEG_DEFG[n];        //D
+ 133                                  if(dat & 0x10)          LCD_buff[12]  |= (2<<seg_pos[n-1]);     //T_SEG_DEFG[n];        //E
+ 134                                  if(dat & 0x20)          LCD_buff[7]   |= (2<<seg_pos[n-1]);     //T_SEG_DEFG[n];        //F
+ 135                                  if(dat & 0x40)          LCD_buff[7]   |= (1<<seg_pos[n-1]);     //T_SEG_DEFG[n];        //G             
+ 136                                  break;  
+ 137                          
+ 138                          case 9: 
+ 139                          case 8:
+ 140                          case 7: 
+ 141                                  LCD_buff[3]  &= ~(3<<seg_pos[n-1]);
+ 142                                  LCD_buff[8]  &= ~(3<<seg_pos[n-1]);
+ 143                                  LCD_buff[13] &= ~(3<<seg_pos[n-1]);
+ 144                                  LCD_buff[14] &= ~(2<<seg_pos[n-1]);
+ 145                          
+ 146                                  if(dat & 0x01)          LCD_buff[3]   |= (2<<seg_pos[n-1]);     //T_SEG_ABC[n];         //A
+ 147                                  if(dat & 0x02)          LCD_buff[3]   |= (1<<seg_pos[n-1]);     //T_SEG_ABC[n];         //B
+ 148                                  if(dat & 0x04)          LCD_buff[13]  |= (1<<seg_pos[n-1]);     //T_SEG_ABC[n];         //C
+ 149                                  if(dat & 0x08)          LCD_buff[18]  |= (2<<seg_pos[n-1]);     //T_SEG_DEFG[n];        //D
+ 150                                  if(dat & 0x10)          LCD_buff[13]  |= (2<<seg_pos[n-1]);     //T_SEG_DEFG[n];        //E
+ 151                                  if(dat & 0x20)          LCD_buff[8]   |= (2<<seg_pos[n-1]);     //T_SEG_DEFG[n];        //F
+ 152                                  if(dat & 0x40)          LCD_buff[8]   |= (1<<seg_pos[n-1]);     //T_SEG_DEFG[n];        //G             
+ 153                                  break;  
+ 154                          
+ 155                          default:
+ 156                                  break;
+ 157                          
+ 158                  }
+ 159          }
+ 160          
+ 161          /********************** LCD配置函数 *****************************/
+ 162          void    LCD_config(void)
+ 163          {
+ 164                  u8      i;
+ 165          
+ 166          //      LCDCFG  = 0x80 + 0;     // 0x00:选择CPU时钟为LCD时钟, 0x80: 选择外部32K晶振做时钟. VLCD电压选择0~7对应0.65+
+             -VLCD*0.05.
+ 167          //      DBLEN   = 2;            // 设置LCD显示时的死区时间长度, 取值0~7.
+ 168          //      COMLENH = 0;            // COM时间长度设置 高字节COMLEN[19:16],  一共20bit.
+ 169          //      COMLENM = 0;            // COM时间长度设置 中字节COMLEN[15:8]   LCD刷新率 = LCD时钟频率 / ((DBLEN[2:0]+COMLEN[19:0]
+             -+1) *2 * COM数)
+ 170          //      COMLENL = 65;           // COM时间长度设置 低字节COMLEN[7:0]    LCD刷新率 = 32768/((2+65+1)*2*4) = 60Hz
+ 171          //      BLINKRATE = 60;         // 闪烁率配置寄存器, LCD闪烁率 = LCD刷新率 / BLINKRATE[7:0] Hz
+ 172                  
+ 173                  LCDCFG  = 0x00 + 0;     // 0x00:选择CPU时钟为LCD时钟, 0x80: 选择外部32K晶振做时钟. VLCD电压选择0~7对应0.65+VL
+             -CD*0.05.
+ 174                  DBLNTH   = 2;           // 设置LCD显示时的死区时间长度, 取值0~7.
+C51 COMPILER V9.60.7.0   LCD                                                               05/23/2025 10:50:36 PAGE 4   
+
+ 175                  COMLNTHH        = 0x01;         // COM时间长度设置 高字节COMLEN[19:16],  一共20bit.
+ 176                  COMLNTHM        = 0x86;         // COM时间长度设置 中字节COMLEN[15:8]   LCD刷新率 = LCD时钟频率 / ((DBLEN[2:0]+COMLEN[19:
+             -0]+1) *2 * COM数)
+ 177                  COMLNTHL        = 0x9d;         // COM时间长度设置 低字节COMLEN[7:0]    LCD刷新率 = 32768/((2+65+1)*2*4) = 60Hz
+ 178                  BLINKFRPS = 60;         // 闪烁率配置寄存器, LCD闪烁率 = LCD刷新率 / BLINKRATE[7:0] Hz
+ 179                  
+ 180                  COM_ON_A  = 0x0f;               // COM使能寄存器
+ 181                  SEG_ON_A = 0xff;                // SEG线使能寄存器1, SEG7~SEG0
+ 182                  SEG_ON_B = 0xff;                // SEG线使能寄存器2, SEG15~SEG8
+ 183                  SEG_ON_C = 0xff;                // SEG线使能寄存器3, SEG23~SEG16
+ 184                  SEG_ON_D = 0xff;                // SEG线使能寄存器4, SEG31~SEG24
+ 185                  SEG_ON_E = 0xff;                // SEG线使能寄存器5, SEG39~SEG32
+ 186                  
+ 187                  P5n_pure_input(0x03);   //P5.0 P5.1 设置为高阻输入      COM0 COM1
+ 188                  P3n_pure_input(0x60);   //P3.5 P3.6 设置为高阻输入      COM2 COM3
+ 189          
+ 190                  LCDCFG2 = 0x0f;                 // SEG0~3切换到P7.7~7.4
+ 191                  P7n_pure_input(0xf0);   //P7.7~P7.4 设置为高阻输入      SEG0~SEG3 (对应P7.7~7.4)
+ 192                  P4n_pure_input(0x80);   //P4.7      设置为高阻输入      SEG4
+ 193                  P1n_pure_input(0x03);   //P1.1~P1.0 设置为高阻输入      SEG5 SEG6       (对应P1.1 P1.0)
+ 194                  P0n_pure_input(0xe0);   //P0.7~P0.5 设置为高阻输入      SEG7 SEG8 SEG9  (对应P0.7 P0.6 P0.5)
+ 195                  P5n_pure_input(0x0C);   //P5.3 P5.2 设置为高阻输入      SEG10 SEG11     (对应P5.3 P5.2)
+ 196                  P0n_pure_input(0x1f);   //P0.4~P0.0 设置为高阻输入      SEG12~SEG16  (对应P0.4 ~ 0.0)
+ 197                  P4n_pure_input(0x60);   //P4.6 P4.5 设置为高阻输入      SEG17 SEG18
+ 198                  //P2n_pure_input(0xff); //P2.7~P2.0 设置为高阻输入      SEG19~SEG26  (对应P2.7~2.0)
+ 199                  P4n_pure_input(0x1e);   //P4.4~P4.1 设置为高阻输入      SEG27~SEG30  (对应P4.4~4.1)
+ 200                  P3n_pure_input(0x80);   //P3.7      设置为高阻输入      SEG31
+ 201                  P7n_pure_input(0x0f);   //P7.3~P7.0 设置为高阻输入      SEG32~SEG35  (对应P7.3~7.0)
+ 202                  P6n_pure_input(0x0f);   //P6.0~P6.3 设置为高阻输入      SEG36~SEG39  (对应P6.3~6.0)
+ 203          
+ 204                  for(i=0; i<20; i++)     
+ 205                          LCD_buff[i] = 0xff;     //清除显示内容
+ 206                          
+ 207          //      LCD_buff[15]=0x05;
+ 208                  
+ 209                  LoadToLcd();    //将显示内容导入显存
+ 210          
+ 211                  LCDCR = (0<<1) + 1;     // LCD控制寄存器, 0:普通模式, 1:长暗模式, 2:长亮模式, 3:闪烁模式.  +0:禁止LCD模块,  +
+             -1:允许LCD模块.
+ 212          }
+ 213          
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  1 ERROR(S)
