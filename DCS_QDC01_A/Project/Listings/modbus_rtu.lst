@@ -1,4 +1,4 @@
-C51 COMPILER V9.60.7.0   MODBUS_RTU                                                        06/27/2025 11:17:30 PAGE 1   
+C51 COMPILER V9.60.7.0   MODBUS_RTU                                                        07/08/2025 09:44:03 PAGE 1   
 
 
 C51 COMPILER V9.60.7.0, COMPILATION OF MODULE MODBUS_RTU
@@ -62,7 +62,7 @@ line level    source
   51   5      
   52   5                          default:
   53   5                              break;
-C51 COMPILER V9.60.7.0   MODBUS_RTU                                                        06/27/2025 11:17:30 PAGE 2   
+C51 COMPILER V9.60.7.0   MODBUS_RTU                                                        07/08/2025 09:44:03 PAGE 2   
 
   54   5                      }
   55   4                  }
@@ -126,7 +126,7 @@ line level    source
  113   3      
  114   3                  /*  40005 工作模式查询                     */
  115   3                  case 0x04:   
-C51 COMPILER V9.60.7.0   MODBUS_RTU                                                        06/27/2025 11:17:30 PAGE 3   
+C51 COMPILER V9.60.7.0   MODBUS_RTU                                                        07/08/2025 09:44:03 PAGE 3   
 
  116   3                      modbus.byte_info_H = 0;
  117   3                      modbus.byte_info_L = ac_dc.alarm_temp_val;
@@ -190,7 +190,7 @@ line level    source
  175   3              }
  176   2              rs485.TX4_buf[modbus.send_value_addr++] = modbus.byte_info_H;
  177   2              rs485.TX4_buf[modbus.send_value_addr++] = modbus.byte_info_L;
-C51 COMPILER V9.60.7.0   MODBUS_RTU                                                        06/27/2025 11:17:30 PAGE 4   
+C51 COMPILER V9.60.7.0   MODBUS_RTU                                                        07/08/2025 09:44:03 PAGE 4   
 
  178   2          }
  179   1          slave_to_master(0x04,3 + modbus.byte_cnt);
@@ -254,7 +254,7 @@ line level    source
  237   1          Buzzer = 1;
  238   1      }
  239          
-C51 COMPILER V9.60.7.0   MODBUS_RTU                                                        06/27/2025 11:17:30 PAGE 5   
+C51 COMPILER V9.60.7.0   MODBUS_RTU                                                        07/08/2025 09:44:03 PAGE 5   
 
  240          /**
  241           * @brief       写多个输出寄存器  16
@@ -318,7 +318,7 @@ line level    source
  299   3      
  300   3                      break;
  301   3      
-C51 COMPILER V9.60.7.0   MODBUS_RTU                                                        06/27/2025 11:17:30 PAGE 6   
+C51 COMPILER V9.60.7.0   MODBUS_RTU                                                        07/08/2025 09:44:03 PAGE 6   
 
  302   3                  /*  40006  模式设置                   */
  303   3                  case 0x05:                                         
@@ -382,7 +382,7 @@ line level    source
  361   2                  break;   
  362   2      
  363   2              case 0x10:
-C51 COMPILER V9.60.7.0   MODBUS_RTU                                                        06/27/2025 11:17:30 PAGE 7   
+C51 COMPILER V9.60.7.0   MODBUS_RTU                                                        07/08/2025 09:44:03 PAGE 7   
 
  364   2                  memcpy(rs485.TX4_buf,rs485.RX4_buf,6);
  365   2              
@@ -446,7 +446,7 @@ line level    source
  420   2              }while(--length != 0);
  421   1      
  422   1              return  (crc16);
-C51 COMPILER V9.60.7.0   MODBUS_RTU                                                        06/27/2025 11:17:30 PAGE 8   
+C51 COMPILER V9.60.7.0   MODBUS_RTU                                                        07/08/2025 09:44:03 PAGE 8   
 
  423   1      }
 

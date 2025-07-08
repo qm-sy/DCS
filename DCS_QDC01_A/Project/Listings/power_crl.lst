@@ -1,4 +1,4 @@
-C51 COMPILER V9.60.7.0   POWER_CRL                                                         06/27/2025 11:17:30 PAGE 1   
+C51 COMPILER V9.60.7.0   POWER_CRL                                                         07/08/2025 09:44:02 PAGE 1   
 
 
 C51 COMPILER V9.60.7.0, COMPILATION OF MODULE POWER_CRL
@@ -62,7 +62,7 @@ line level    source
   51          **/
   52          void Tim1_ISR( void ) interrupt 3   //10ms
   53          {
-C51 COMPILER V9.60.7.0   POWER_CRL                                                         06/27/2025 11:17:30 PAGE 2   
+C51 COMPILER V9.60.7.0   POWER_CRL                                                         07/08/2025 09:44:02 PAGE 2   
 
   54   1          /* 1, 中断触发后，power_ch电平 由高电平变为低电平           */
   55   1          if( ac_dc.zero_flag == 1 )
@@ -126,7 +126,7 @@ line level    source
  112          {
  113   1          if( ac_dc.sync_flag == 1 )
  114   1          {
-C51 COMPILER V9.60.7.0   POWER_CRL                                                         06/27/2025 11:17:30 PAGE 3   
+C51 COMPILER V9.60.7.0   POWER_CRL                                                         07/08/2025 09:44:02 PAGE 3   
 
  115   2              extern_24_listen();
  116   2              if( ac_dc.signal_in_flag == 1 )
@@ -190,7 +190,7 @@ line level    source
  174   1          {
  175   2              case 1:
  176   2              ac_dc.ac_out1_flag = 1;
-C51 COMPILER V9.60.7.0   POWER_CRL                                                         06/27/2025 11:17:30 PAGE 4   
+C51 COMPILER V9.60.7.0   POWER_CRL                                                         07/08/2025 09:44:02 PAGE 4   
 
  177   2              ac_dc.ac_out2_flag = ac_dc.ac_out3_flag = 0;
  178   2              break;
@@ -254,7 +254,7 @@ MODULE INFORMATION:   STATIC OVERLAYABLE
    DATA SIZE        =   ----    ----
    IDATA SIZE       =   ----    ----
    BIT SIZE         =   ----    ----
-C51 COMPILER V9.60.7.0   POWER_CRL                                                         06/27/2025 11:17:30 PAGE 5   
+C51 COMPILER V9.60.7.0   POWER_CRL                                                         07/08/2025 09:44:02 PAGE 5   
 
 END OF MODULE INFORMATION.
 

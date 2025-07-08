@@ -34,6 +34,7 @@ void main( void )
     PWMB_BKR = 0x00; 
     EX0 = 0;
     FAN_TMEP = 0;
+    Buzzer = 1;
     while ( ac_dc.connect_flag == 0 )
     {
         Modbus_Event();
