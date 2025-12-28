@@ -44,36 +44,9 @@ void main( void )
 
     while (1)
     {
-        if( ac_dc.all_ctrl_flag == 1 )
-        {
-            if( ac_dc.connect_flag == 1)
-            {  
-                sync_ctrl();
-            }
-            if( ac_dc.connect_flag == 0)
-            {
-                PWMB_BKR = 0x00; 
-                EX0 = 0;
-            }
-            Modbus_Event();
-            temp_scan();
-        }
-
-        if( ac_dc.all_ctrl_flag == 0)
-        {
-            ac_dc.buzzer_call_flag2 = 1;
-            ac_dc.buzzer_call_flag1 = 0;
-        }else
-        {
-            ac_dc.buzzer_call_flag2 = 0;
-            if( ac_dc.alarm_flag == 1 )
-            {
-                ac_dc.buzzer_call_flag1 = 1;
-            }else
-            {
-                ac_dc.buzzer_call_flag1 = 0;
-                Buzzer = 1;
-            }
-        }
+        fan_delay_ctrl();
+        Modbus_Event();
+        ac_dc_ctrl();
+        temp_scan();
     }  
 }

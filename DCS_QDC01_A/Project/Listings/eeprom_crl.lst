@@ -1,11 +1,11 @@
-C51 COMPILER V9.60.7.0   EEPROM_CRL                                                        07/08/2025 09:44:02 PAGE 1   
+C51 COMPILER V9.60.7.0   EEPROM_CRL                                                        12/28/2025 23:07:15 PAGE 1   
 
 
 C51 COMPILER V9.60.7.0, COMPILATION OF MODULE EEPROM_CRL
 OBJECT MODULE PLACED IN ..\Output\eeprom_crl.obj
-COMPILER INVOKED BY: D:\APP\Keil_v5\C51\BIN\C51.EXE ..\BSP\Src\eeprom_crl.c LARGE OPTIMIZE(8,SPEED) BROWSE INCDIR(..\BSP
-                    -\Inc;..\Core\Inc;..\Driver;..\Emembed\Inc;..\SYSTEM\Inc) DEBUG OBJECTEXTEND PRINT(.\Listings\eeprom_crl.lst) OBJECT(..\O
-                    -utput\eeprom_crl.obj)
+COMPILER INVOKED BY: D:\APP\KEIL\MDK\C51\BIN\C51.EXE ..\BSP\Src\eeprom_crl.c LARGE OPTIMIZE(8,SPEED) BROWSE INCDIR(..\BS
+                    -P\Inc;..\Core\Inc;..\Driver;..\Emembed\Inc;..\SYSTEM\Inc) DEBUG OBJECTEXTEND PRINT(.\Listings\eeprom_crl.lst) TABS(2) OB
+                    -JECT(..\Output\eeprom_crl.obj)
 
 line level    source
 
@@ -14,7 +14,7 @@ line level    source
    3          uint8_t mode_info[5];
    4          
    5          /**
-   6           * @brief       eeprom状态判定，是否写入过
+   6           * @brief eeprom状态判定，是否写入过
    7           *
    8           * @param   
    9           *
@@ -23,132 +23,129 @@ line level    source
   12          void eeprom_statu_judge( void )
   13          {
   14   1          uint8_t eeprom_statu_flag;
-  15   1          uint8_t i,j;
-  16   1          uint16_t addr;
-  17   1      
-  18   1          eeprom_statu_flag = ISP_Read(EEPROM_STATU_JUDGE);
-  19   1      
-  20   1          if( eeprom_statu_flag == 0xFF)
-  21   1          {
-  22   2              ac_dc.channel_num       = 0x07;          // 0000 0111  三路全开
-  23   2              channel_close();
-  24   2      
-  25   2              ac_dc.sync_flag         = 0x00;          // 0000 0001  sync默认关
-  26   2              sync_ctrl();
-  27   2      
-  28   2              ac_dc.fan_level         = 0x03;          // 3  风扇默认三档
-  29   2              fan_ctrl(ac_dc.fan_level);
-  30   2      
-  31   2              ac_dc.power_level       = 0x32;          // 50         220V输出50%功率
-  32   2              ac_220v_crl(ac_dc.power_level);
-  33   2              
-  34   2              ac_dc.alarm_temp_val    = 0x50;          // 报警温度默认80℃
-  35   2      
-  36   2              mode_info[0] = ac_dc.channel_num;
-  37   2              mode_info[1] = ac_dc.sync_flag;
-  38   2              mode_info[2] = ac_dc.fan_level;
-  39   2              mode_info[3] = ac_dc.power_level;
-  40   2              mode_info[4] = ac_dc.alarm_temp_val;
-  41   2      
-  42   2              for( j = 0; j < 5; j++)
-  43   2              {
-  44   3                  Buzzer = 0;
-  45   3                  addr = ((j + 1) * 2) << 8;
-  46   3                  ISP_Earse(addr);
-  47   3                  for( i = 0; i < 5; i++)
-  48   3                  {
-  49   4                      ISP_Write(addr,mode_info[i]);
-  50   4                      addr++;
-  51   4                      Buzzer = 1;
-  52   4                  }
-  53   3              }
-C51 COMPILER V9.60.7.0   EEPROM_CRL                                                        07/08/2025 09:44:02 PAGE 2   
+  15   1          uint8_t i;
+  16   1        
+  17   1          eeprom_statu_flag = ISP_Read(EEPROM_STATU_JUDGE);
+  18   1      
+  19   1          if( eeprom_statu_flag != 0x58)
+  20   1          {
+  21   2              slave_06.channel_num       = 0x07;         // 0000 0111  三路全开
+  22   2              slave_06.sync_switch       = 0;            // 0000 0001  sync默认关
+  23   2              slave_06.fan_level         = 3;            // 3  风扇默认三档
+  24   2              slave_06.power_level       = 50;           // 50         220V输出50%功率
+  25   2              slave_06.OTP_temp1    = 80;           // 报警温度默认80℃
+  26   2      
+  27   2              for( i = 0; i < 5; i++ )
+  28   2              {
+  29   3                  Buzzer = 0;
+  30   3      
+  31   3                  slave_06.mode_num = i + 1;
+  32   3                  eeprom_data_write();
+  33   3      
+  34   3                  Buzzer = 1;
+  35   3              }
+  36   2      
+  37   2              slave_06.mode_num = 1;
+  38   2              eeprom_mode_write();
+  39   2          }else
+  40   1          {
+  41   2              eeprom_data_read();
+  42   2          }
+  43   1      
+  44   1          power_ctrl.OTP_temp2 = 120;
+  45   1      
+  46   1          eeprom_data_init(); 
+  47   1      }
+  48          
+  49          /* 
+  50                     扇区0，地址0x0000~0x01FF     存放模式序号
+  51          
+  52              模式1：扇区1，地址0x0200~0x03FF     存放模式1数据
+  53          
+C51 COMPILER V9.60.7.0   EEPROM_CRL                                                        12/28/2025 23:07:15 PAGE 2   
 
-  54   2              ac_dc.mode_num = 1;
-  55   2              eeprom_mode_record();
-  56   2          }else
-  57   1          {
-  58   2              eeprom_data_init(); 
-  59   2          }
-  60   1      }
-  61          
-  62          void eeprom_mode_record( void )
+  54              模式2：扇区2，地址0x0400~0x05FF     存放模式2数据
+  55          
+  56              模式3：扇区3，地址0x0600~0x07FF     存放模式3数据
+  57          
+  58              模式4：扇区4，地址0x0800~0x09FF     存放模式4数据
+  59          
+  60              模式5：扇区5，地址0x0a00~0x0aFF     存放模式5数据
+  61          */
+  62          void eeprom_mode_write( void )
   63          {
   64   1          ISP_Earse(MODE_ADDR);
-  65   1          ISP_Write(MODE_ADDR,ac_dc.mode_num);
-  66   1          ISP_Write(EEPROM_STATU_JUDGE,0x58);
-  67   1      }
-  68          
-  69          /**
-  70           * @brief       eeprom 数据写入
-  71           *
-  72           * @param   
-  73           *
-  74           * @return  void
-  75          **/
-  76          void eeprom_data_record( void )
-  77          {
-  78   1          uint8_t i;
-  79   1          uint16_t addr;
-  80   1      
-  81   1          mode_info[0] = ac_dc.channel_num;
-  82   1          mode_info[1] = ac_dc.sync_flag;
-  83   1          mode_info[2] = ac_dc.fan_level;
-  84   1          mode_info[3] = ac_dc.power_level;
-  85   1          mode_info[4] = ac_dc.alarm_temp_val;
-  86   1      
-  87   1          addr = (ac_dc.mode_num * 2) << 8;
-  88   1          ISP_Earse(addr);
-  89   1      
-  90   1          for( i = 0; i < 5; i++)
-  91   1          {
-  92   2              ISP_Write(addr,mode_info[i]);
-  93   2              addr++;
-  94   2          }
-  95   1      }
-  96          
-  97          /**
-  98           * @brief       eeprom 数据初始化
-  99           *
- 100           * @param   
- 101           *
- 102           * @return  void
- 103          **/
- 104          void eeprom_data_init( void )
- 105          {
- 106   1          uint8_t i;
- 107   1          uint16_t addr;
- 108   1      
- 109   1          ac_dc.mode_num = ISP_Read(MODE_ADDR);
- 110   1      
- 111   1          addr = (ac_dc.mode_num * 2) << 8;
- 112   1          for( i = 0; i < 5; i++)
- 113   1          {
- 114   2              mode_info[i] = ISP_Read(addr);
- 115   2              addr++;
-C51 COMPILER V9.60.7.0   EEPROM_CRL                                                        07/08/2025 09:44:02 PAGE 3   
+  65   1          ISP_Write(MODE_ADDR,slave_06.mode_num);
+  66   1      
+  67   1          ISP_Write(EEPROM_STATU_JUDGE,0x58);
+  68   1      }
+  69          
+  70          void eeprom_data_read( void )
+  71          {
+  72   1          uint8_t i;
+  73   1          uint16_t addr;
+  74   1      
+  75   1          slave_06.mode_num = ISP_Read(MODE_ADDR);
+  76   1      
+  77   1          addr = (slave_06.mode_num * 2) << 8;
+  78   1      
+  79   1          for( i = 0; i < 5; i++)
+  80   1          {
+  81   2              mode_info[i] = ISP_Read(addr);
+  82   2              addr++;
+  83   2          }
+  84   1      }
+  85          
+  86          void eeprom_data_write( void )
+  87          {
+  88   1          uint8_t i;
+  89   1          uint16_t addr;
+  90   1      
+  91   1          mode_info[0] = slave_06.channel_num;
+  92   1          mode_info[1] = slave_06.sync_switch;
+  93   1          mode_info[2] = slave_06.fan_level;
+  94   1          mode_info[3] = slave_06.power_level;
+  95   1          mode_info[4] = slave_06.OTP_temp1;
+  96   1      
+  97   1          addr = ( slave_06.mode_num * 2 ) << 8;
+  98   1          ISP_Earse(addr);
+  99   1      
+ 100   1          for( i = 0; i < 5; i++ )
+ 101   1          {
+ 102   2              ISP_Write(addr,mode_info[i]);
+ 103   2              addr++;
+ 104   2          }
+ 105   1      }
+ 106          
+ 107          /**
+ 108           * @brief eeprom 数据初始化
+ 109           *
+ 110           * @param   
+ 111           *
+ 112           * @return  void
+ 113          **/
+ 114          void eeprom_data_init( void )
+ 115          {
+C51 COMPILER V9.60.7.0   EEPROM_CRL                                                        12/28/2025 23:07:15 PAGE 3   
 
- 116   2          }
- 117   1          ac_dc.channel_num = mode_info[0];
- 118   1          channel_close();
+ 116   1          slave_06.channel_num    = mode_info[0];
+ 117   1      
+ 118   1          slave_06.sync_switch    = mode_info[1];
  119   1      
- 120   1          ac_dc.sync_flag   = mode_info[1];
- 121   1          sync_ctrl();
+ 120   1          slave_06.fan_level      = mode_info[2];
+ 121   1          fan_ctrl();
  122   1      
- 123   1          ac_dc.fan_level   = mode_info[2];
- 124   1          fan_ctrl(ac_dc.fan_level);
+ 123   1          slave_06.power_level    = mode_info[3];
+ 124   1          power_level_crl();
  125   1      
- 126   1          ac_dc.power_level = mode_info[3];
- 127   1          ac_220v_crl(ac_dc.power_level);
- 128   1      
- 129   1          ac_dc.alarm_temp_val    = mode_info[4];
- 130   1      }
+ 126   1          slave_06.OTP_temp1 = mode_info[4];
+ 127   1      }
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =    498    ----
+   CODE SIZE        =    365    ----
    CONSTANT SIZE    =   ----    ----
-   XDATA SIZE       =      5      10
+   XDATA SIZE       =      5       7
    PDATA SIZE       =   ----    ----
    DATA SIZE        =   ----    ----
    IDATA SIZE       =   ----    ----

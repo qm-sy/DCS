@@ -1,18 +1,18 @@
-C51 COMPILER V9.60.7.0   COMMON                                                            07/08/2025 09:44:02 PAGE 1   
+C51 COMPILER V9.60.7.0   COMMON                                                            12/28/2025 23:07:15 PAGE 1   
 
 
 C51 COMPILER V9.60.7.0, COMPILATION OF MODULE COMMON
 OBJECT MODULE PLACED IN ..\Output\common.obj
-COMPILER INVOKED BY: D:\APP\Keil_v5\C51\BIN\C51.EXE ..\Emembed\Src\common.c LARGE OPTIMIZE(8,SPEED) BROWSE INCDIR(..\BSP
-                    -\Inc;..\Core\Inc;..\Driver;..\Emembed\Inc;..\SYSTEM\Inc) DEBUG OBJECTEXTEND PRINT(.\Listings\common.lst) OBJECT(..\Outpu
-                    -t\common.obj)
+COMPILER INVOKED BY: D:\APP\KEIL\MDK\C51\BIN\C51.EXE ..\Emembed\Src\common.c LARGE OPTIMIZE(8,SPEED) BROWSE INCDIR(..\BS
+                    -P\Inc;..\Core\Inc;..\Driver;..\Emembed\Inc;..\SYSTEM\Inc) DEBUG OBJECTEXTEND PRINT(.\Listings\common.lst) TABS(2) OBJECT
+                    -(..\Output\common.obj)
 
 line level    source
 
    1          #include "common.h"
    2          
    3          /**
-   4           * @brief       一些定时执行的事件   Timer3：10ms
+   4           * @brief 一些定时执行的事件   Timer3：10ms
    5           *
    6           * @param   
    7           *
@@ -20,105 +20,114 @@ line level    source
    9          **/
   10          void Tim3_ISR( void ) interrupt 19
   11          {
-  12   1      
-  13   1          static uint16_t temp_scan_cnt = 0;
-  14   1          static uint16_t buzzer_cnt1 = 0;
-  15   1          static uint16_t buzzer_cnt2 = 0;
-  16   1          static uint8_t buzzer1_status = 1;
-  17   1          static uint16_t sync_delay_cnt = 0;
-  18   1          /* 1, Signal_IN状态查询           */
-  19   1          if( Signal_IN == 0 )
-  20   1          {
-  21   2              ac_dc.signal_in_flag = 1;
-  22   2          }else
-  23   1          {
-  24   2              ac_dc.signal_in_flag = 0;
-  25   2          }
-  26   1      
-  27   1          /* 2, temp 上报 1s/次                             */
-  28   1          if( temp.temp_scan_flag == 0 )
-  29   1          {
-  30   2              temp_scan_cnt++;
-  31   2              if( temp_scan_cnt == 100 )
-  32   2              {
-  33   3                  temp.temp_scan_flag = 1;
-  34   3                  temp_scan_cnt = 0;
-  35   3              }
-  36   2          }
-  37   1          
-  38   1          if( ac_dc.buzzer_call_flag1 == 1 )
-  39   1          {
-  40   2              buzzer_cnt1++;
-  41   2              if( buzzer_cnt1 == 50 )
-  42   2              {
-  43   3                  buzzer1_status = 1- buzzer1_status;
-  44   3                  if( buzzer1_status == 0 )
-  45   3                  {
-  46   4                      Buzzer = 0;
-  47   4                  }else
-  48   3                  {
-  49   4                      Buzzer = 1;
-  50   4                  }
-  51   3                  buzzer_cnt1 = 0;
-  52   3              }
-  53   2          }
-C51 COMPILER V9.60.7.0   COMMON                                                            07/08/2025 09:44:02 PAGE 2   
+  12   1          static uint8_t  signal_up_cnt   = 0;
+  13   1          static uint8_t  signal_down_cnt = 0;
+  14   1      
+  15   1          static uint16_t temp_scan_cnt = 0;
+  16   1      
+  17   1          static uint16_t OTP1_cnt = 0;
+  18   1          static uint16_t OTP2_cnt = 0;
+  19   1          static uint8_t Buzzer_status = 1;
+  20   1          static uint16_t fan_delay_cnt = 0;
+  21   1      
+  22   1          /* 1, Signal_IN状态查询 + 防抖      */
+  23   1          if( Signal_IN == 0 )
+  24   1          {
+  25   2              signal_up_cnt++;
+  26   2              signal_down_cnt = 0;
+  27   2              if( signal_up_cnt == 5 )    //50ms防抖处理
+  28   2              {
+  29   3                  signal_up_cnt = 0;
+  30   3                  power_ctrl.signal_flag = 1;
+  31   3              }
+  32   2          }else
+  33   1          {
+  34   2              signal_down_cnt++;
+  35   2              signal_up_cnt = 0;
+  36   2              if( signal_down_cnt == 5 )
+  37   2              {
+  38   3                  signal_down_cnt = 0;
+  39   3                  power_ctrl.signal_flag = 0;
+  40   3              }
+  41   2          }
+  42   1      
+  43   1          /* 2, temp 上报 1s/次                             */
+  44   1          if( temp.temp_scan_flag == 0 )
+  45   1          {
+  46   2              temp_scan_cnt++;
+  47   2              if( temp_scan_cnt == 100 )
+  48   2              {
+  49   3                  temp_scan_cnt = 0;
+  50   3                  temp.temp_scan_flag = 1;
+  51   3              }
+  52   2          }
+  53   1          
+C51 COMPILER V9.60.7.0   COMMON                                                            12/28/2025 23:07:15 PAGE 2   
 
-  54   1          if( ac_dc.buzzer_call_flag2 == 1 )
-  55   1          {
-  56   2              buzzer_cnt2++;
-  57   2              if( buzzer_cnt2 == 20 )
-  58   2              {
-  59   3                  Buzzer = 0;
-  60   3              }
-  61   2              if( buzzer_cnt2 == 40 )
-  62   2              {
-  63   3                  Buzzer = 1;
-  64   3              }
-  65   2              if( buzzer_cnt2 == 60 )
-  66   2              {
-  67   3                  Buzzer = 0;
-  68   3              }
-  69   2              if( buzzer_cnt2 == 80 )
-  70   2              {
-  71   3                  Buzzer = 1;
-  72   3              }
-  73   2              if( buzzer_cnt2 == 100 )
-  74   2              {
-  75   3                  Buzzer = 0;
-  76   3              }
-  77   2              if( buzzer_cnt2 == 120 )
-  78   2              {
-  79   3                  Buzzer = 1;
-  80   3              }
-  81   2              if( buzzer_cnt2 == 200 )
-  82   2              {
-  83   3                  buzzer_cnt2 = 0;
-  84   3              }
-  85   2          }
-  86   1      
-  87   1          if( ac_dc.fan_delay_flag == 1 )
-  88   1          {
-  89   2              sync_delay_cnt++;
-  90   2              if( sync_delay_cnt == 1500 )
-  91   2              {
-  92   3                  PWMB_BKR = 0x00; 
-  93   3                  sync_delay_cnt = 0;
-  94   3                  ac_dc.fan_delay_flag = 0;
-  95   3              }
-  96   2          }else
-  97   1          {
-  98   2              sync_delay_cnt = 0;
-  99   2          }
- 100   1      }
+  54   1          /* 3, 过温保护蜂鸣器叫声控制                        */
+  55   1          if( power_ctrl.OTP1_alarm_flag == 1 )   //过温保护1
+  56   1          {
+  57   2              OTP1_cnt++;
+  58   2              if( OTP1_cnt == 50 )
+  59   2              {
+  60   3                  Buzzer_status = 1- Buzzer_status;
+  61   3                  if( Buzzer_status == 0 )
+  62   3                  {
+  63   4                      Buzzer = BUZZER_ON;
+  64   4                  }else
+  65   3                  {
+  66   4                      Buzzer = BUZZER_OFF;
+  67   4                  }
+  68   3                  OTP1_cnt = 0;
+  69   3              }
+  70   2          }
+  71   1      
+  72   1          if( power_ctrl.OTP2_alarm_flag == 1 )   //过温保护2
+  73   1          {
+  74   2              OTP2_cnt++;
+  75   2              if( OTP2_cnt == 200 )
+  76   2              {
+  77   3                  OTP2_cnt = 1;   // 重置计数器 
+  78   3              }
+  79   2      
+  80   2              // 判断是否在蜂鸣器开启的区间
+  81   2              if( (OTP2_cnt >= 20 && OTP2_cnt <= 39) || 
+  82   2                  (OTP2_cnt >= 60 && OTP2_cnt <= 79) || 
+  83   2                  (OTP2_cnt >= 100 && OTP2_cnt <= 119) )
+  84   2              {
+  85   3                  Buzzer = BUZZER_ON;
+  86   3              }
+  87   2              else
+  88   2              {
+  89   3                  Buzzer = BUZZER_OFF;
+  90   3              }
+  91   2          }
+  92   1      
+  93   1          /* 4, 风扇延时关闭                        */
+  94   1          if( power_ctrl.fan_delay_flag == 1 )
+  95   1          {
+  96   2              fan_delay_cnt++;
+  97   2              if( fan_delay_cnt == 1500 )
+  98   2              { 
+  99   3                  fan_delay_cnt = 0;
+ 100   3                  power_ctrl.FAN_enable = 0;
+ 101   3                  power_ctrl.fan_delay_flag = 0;
+ 102   3              }
+ 103   2          }else
+ 104   1          {
+ 105   2              fan_delay_cnt = 0;
+ 106   2          }
+ 107   1      }
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =    289    ----
+   CODE SIZE        =    344    ----
    CONSTANT SIZE    =   ----    ----
-   XDATA SIZE       =      9    ----
+   XDATA SIZE       =     11    ----
    PDATA SIZE       =   ----    ----
    DATA SIZE        =   ----    ----
+C51 COMPILER V9.60.7.0   COMMON                                                            12/28/2025 23:07:15 PAGE 3   
+
    IDATA SIZE       =   ----    ----
    BIT SIZE         =   ----    ----
 END OF MODULE INFORMATION.

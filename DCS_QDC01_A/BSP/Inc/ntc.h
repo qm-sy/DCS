@@ -10,9 +10,9 @@
 
 typedef struct 
 {
-    uint8_t  temp_value1;   
-    uint8_t  temp_value2;  
-    uint8_t  temp_value3;  
+    uint8_t  NTC1_value;   
+    uint8_t  NTC2_value;  
+    uint8_t  NTC3_value;  
     uint8_t  temp_alarm_value;
     uint8_t  temp_scan_flag;
 

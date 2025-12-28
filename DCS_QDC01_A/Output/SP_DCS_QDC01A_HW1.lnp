@@ -1,0 +1,16 @@
+"..\Output\delay.obj",
+"..\Output\adc.obj",
+"..\Output\eeprom.obj",
+"..\Output\gpio.obj",
+"..\Output\main.obj",
+"..\Output\pwm.obj",
+"..\Output\tim.obj",
+"..\Output\uart.obj",
+"..\Output\communication.obj",
+"..\Output\eeprom_crl.obj",
+"..\Output\ntc.obj",
+"..\Output\power_crl.obj",
+"..\Output\common.obj",
+"..\Output\modbus_rtu.obj" 
+TO "..\Output\SP_DCS_QDC01A_HW1.74_SW001_20250627" 
+PRINT(".\Listings\SP_DCS_QDC01A_HW1.m51") RAMSIZE(256) 

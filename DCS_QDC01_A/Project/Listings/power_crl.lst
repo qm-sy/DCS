@@ -1,261 +1,265 @@
-C51 COMPILER V9.60.7.0   POWER_CRL                                                         07/08/2025 09:44:02 PAGE 1   
+C51 COMPILER V9.60.7.0   POWER_CRL                                                         12/28/2025 23:07:15 PAGE 1   
 
 
 C51 COMPILER V9.60.7.0, COMPILATION OF MODULE POWER_CRL
 OBJECT MODULE PLACED IN ..\Output\power_crl.obj
-COMPILER INVOKED BY: D:\APP\Keil_v5\C51\BIN\C51.EXE ..\BSP\Src\power_crl.c LARGE OPTIMIZE(8,SPEED) BROWSE INCDIR(..\BSP\
-                    -Inc;..\Core\Inc;..\Driver;..\Emembed\Inc;..\SYSTEM\Inc) DEBUG OBJECTEXTEND PRINT(.\Listings\power_crl.lst) OBJECT(..\Out
-                    -put\power_crl.obj)
+COMPILER INVOKED BY: D:\APP\KEIL\MDK\C51\BIN\C51.EXE ..\BSP\Src\power_crl.c LARGE OPTIMIZE(8,SPEED) BROWSE INCDIR(..\BSP
+                    -\Inc;..\Core\Inc;..\Driver;..\Emembed\Inc;..\SYSTEM\Inc) DEBUG OBJECTEXTEND PRINT(.\Listings\power_crl.lst) TABS(2) OBJE
+                    -CT(..\Output\power_crl.obj)
 
 line level    source
 
    1          #include "power_crl.h"
    2          
    3          AC_DC ac_dc;
-   4          /**
-   5           * @brief       移相触发调用结构体初始化
-   6           *
-   7           * @param   
-   8           *
-   9           * @return  void
-  10          **/
-  11          void Power_Statu_Init( void )
-  12          {
-  13   1          ac_dc.zero_flag  = 0;
-  14   1          temp.temp_scan_flag = 0;
-  15   1          AC_Out1 = AC_Out2 = AC_Out3 = 1;
-  16   1          ac_dc.connect_flag = 0;
-  17   1          ac_dc.alarm_flag = 0;
-  18   1          ac_dc.all_ctrl_flag = 1;
-  19   1          ac_dc.buzzer_call_flag1 = 0;
-  20   1          ac_dc.buzzer_call_flag2 = 0;
-  21   1          ac_dc.fan_delay_flag = 0;
-  22   1          ac_dc.mode_set_flag = 0;
-  23   1      }
-  24          
-  25          /**
-  26           * @brief       外部中断0中断处理函数
-  27           *
-  28           * @param   
-  29           *
-  30           * @return  void
-  31          **/
-  32          void INT0_ISR( void ) interrupt 0
-  33          {
-  34   1          /* 1, 检测到外部中断后，等待THL\TLI后触发TIM1中断       */
-  35   1          TL1 = ac_dc.time_delay;                             
-  36   1              TH1 = ac_dc.time_delay >> 8;                            
-  37   1      
-  38   1          ac_dc.zero_flag = 1;
-  39   1      
-  40   1          /* 2, 定时器1开始计时，打开TIM1中断                     */
-  41   1          TR1 = 1;                                 
-  42   1          ET1 = 1; 
-  43   1      }
-  44          
-  45          /**
-  46           * @brief       Timer1中断处理函数
-  47           *
-  48           * @param   
-  49           *
-  50           * @return  void
-  51          **/
-  52          void Tim1_ISR( void ) interrupt 3   //10ms
-  53          {
-C51 COMPILER V9.60.7.0   POWER_CRL                                                         07/08/2025 09:44:02 PAGE 2   
+   4          SLAVE_06 slave_06;
+   5          POWER_CTRL power_ctrl;
+   6          
+   7          /**
+   8           * @brief 移相触发调用结构体初始化
+   9           *
+  10           * @param   
+  11           *
+  12           * @return  void
+  13          **/
+  14          void Power_Statu_Init( void )
+  15          {
+  16   1          power_ctrl.zero_flag = 0;
+  17   1          temp.temp_scan_flag  = 0;
+  18   1      }
+  19          
+  20          /**
+  21           * @brief 外部中断0中断处理函数
+  22           *
+  23           * @param   
+  24           *
+  25           * @return  void
+  26          **/
+  27          void INT0_ISR( void ) interrupt 0
+  28          {
+  29   1          /* 1, 检测到外部中断后，等待THL\TLI后触发TIM1中断       */
+  30   1          TL1 = power_ctrl.time_delay;        
+  31   1        TH1 = power_ctrl.time_delay >> 8;       
+  32   1      
+  33   1          power_ctrl.zero_flag = 1;
+  34   1      
+  35   1          /* 2, 定时器1开始计时，打开TIM1中断                     */
+  36   1          TR1 = 1;             
+  37   1          ET1 = 1; 
+  38   1      }
+  39          
+  40          /**
+  41           * @brief Timer1中断处理函数
+  42           *
+  43           * @param   
+  44           *
+  45           * @return  void
+  46          **/
+  47          void Tim1_ISR( void ) interrupt 3   //10ms
+  48          {
+  49   1          /* 1, 中断触发后，power_ch电平 由高电平变为低电平           */
+  50   1          if( power_ctrl.zero_flag == 1 )
+  51   1          {
+  52   2              power_ctrl.zero_flag = 0;
+  53   2      
+C51 COMPILER V9.60.7.0   POWER_CRL                                                         12/28/2025 23:07:15 PAGE 2   
 
-  54   1          /* 1, 中断触发后，power_ch电平 由高电平变为低电平           */
-  55   1          if( ac_dc.zero_flag == 1 )
-  56   1          {
-  57   2              ac_dc.zero_flag = 0;
+  54   2               /* 2, 温度允许，使能为1时可开启输出          */
+  55   2              AC_Out1 = 1 - power_ctrl.AC1_enable;
+  56   2              AC_Out2 = 1 - power_ctrl.AC2_enable;
+  57   2              AC_Out3 = 1 - power_ctrl.AC3_enable;
   58   2      
-  59   2               /* 2, 温度允许，使能为1时可开启输出          */
-  60   2              AC_Out1 = 1 - ac_dc.ac_out1_flag;
-  61   2              AC_Out2 = 1 - ac_dc.ac_out2_flag;
-  62   2              AC_Out3 = 1 - ac_dc.ac_out3_flag;
-  63   2      
-  64   2               /* 3, 设置下一次Timer1中断触发所需时间，即脉冲时间       */
-  65   2              TL1 = 0xF7;                             
-  66   2              TH1 = 0xFF;                             
-  67   2          }else
-  68   1          {
-  69   2              /* 2, 下一次进入Timer1中断，power_ch电平 由低电平变为高电平，完成一次10us�
+  59   2               /* 3, 设置下一次Timer1中断触发所需时间，即脉冲时间       */
+  60   2              TL1 = 0xF7;       
+  61   2              TH1 = 0xFF;       
+  62   2          }else
+  63   1          {
+  64   2              /* 2, 下一次进入Timer1中断，power_ch电平 由低电平变为高电平，完成一次10us�
              -��冲，即斩波*/
-  70   2              AC_Out1 = AC_Out2 = AC_Out3 = 1;
-  71   2      
-  72   2              /* 3, 定时器1停止计时，关闭TIM1中断，等待下一次外部中断     */
-  73   2              TR1 = 0;                                    
-  74   2              ET1 = 0; 
-  75   2          }
-  76   1      }
-  77          
-  78          /**
-  79           * @brief       220V输出功率控制函数 
-  80           *
-  81           * @param   power_level：输出功率百分比  0%~100%
-  82           *
-  83           * @return  void
-  84          **/
-  85          void ac_220v_crl( uint8_t power_level )
-  86          {
-  87   1          ac_dc.time_delay = 58000 + 74*power_level;
-  88   1      }
-  89          
-  90          
-  91          /**
-  92           * @brief       24V PWM风扇档位控制函数
-  93           *
-  94           * @param   level :风扇档位 0~6档
-  95           *
-  96           * @return  void
-  97          **/
-  98          void fan_ctrl( uint8_t level )
-  99          {
- 100   1          PWMB_CCR7 = level * 184;
- 101   1          PWMB_CCR8 = level * 184;
- 102   1      }
- 103          
- 104          /**
- 105           * @brief       同步控制函数：无外部信号时 PWM风扇和220V输出关闭
- 106           *
- 107           * @param   
- 108           *
- 109           * @return  void
- 110          **/
- 111          void sync_ctrl( void )
- 112          {
- 113   1          if( ac_dc.sync_flag == 1 )
- 114   1          {
-C51 COMPILER V9.60.7.0   POWER_CRL                                                         07/08/2025 09:44:02 PAGE 3   
+  65   2              AC_Out1 = AC_Out2 = AC_Out3 = 1;
+  66   2      
+  67   2              /* 3, 定时器1停止计时，关闭TIM1中断，等待下一次外部中断     */
+  68   2              TR1 = 0;            
+  69   2              ET1 = 0; 
+  70   2          }
+  71   1      }
+  72          
+  73          /**
+  74           * @brief 220V输出功率控制函数 
+  75           *
+  76           * @param   power_level：输出功率百分比  0%~100%
+  77           *
+  78           * @return  void
+  79          **/
+  80          void power_level_crl( void )
+  81          {
+  82   1          power_ctrl.time_delay = 58000 + 74 * slave_06.power_level;
+  83   1      }
+  84          
+  85          
+  86          /**
+  87           * @brief 24V PWM风扇档位控制函数
+  88           *
+  89           * @param   level :风扇档位 0~6档
+  90           *
+  91           * @return  void
+  92          **/
+  93          void fan_ctrl( void )
+  94          {
+  95   1          PWMB_CCR7 = PWMB_CCR8 = slave_06.fan_level * 184;
+  96   1      }
+  97          
+  98          /**
+  99           * @brief 温度扫描，DHT11温湿度扫描 1s/次 控制220V输出使能
+ 100           *
+ 101           * @param[in] 
+ 102           * 
+ 103           * @return  
+ 104           * 
+ 105          **/
+ 106          void temp_scan( void )
+ 107          {
+ 108   1          if( temp.temp_scan_flag == 1 )
+ 109   1          {
+ 110   2              temp.NTC1_value =  get_temp(NTC);
+ 111   2      
+ 112   2              if( temp.NTC1_value >= FAN_START_TEMP )      //小风扇启动温度
+ 113   2              {
+ 114   3                  FAN_TMEP = 1;
+C51 COMPILER V9.60.7.0   POWER_CRL                                                         12/28/2025 23:07:15 PAGE 3   
 
- 115   2              extern_24_listen();
- 116   2              if( ac_dc.signal_in_flag == 1 )
- 117   2              {
- 118   3                  EX0 = 1;            //外部中断控制
- 119   3                  PWMB_BKR = 0x80;    //PWM控制
- 120   3                  ac_dc.fan_delay_flag = 0;
- 121   3              }else
- 122   2              {   
- 123   3                  EX0 = 0;
+ 115   3              }else
+ 116   2              {
+ 117   3                  FAN_TMEP = 0;
+ 118   3              }
+ 119   2      
+ 120   2              if( temp.NTC1_value >= power_ctrl.OTP_temp2 )    //过温保护2  蜂鸣器报警 滴-滴-滴-滴�
+             -��
+ 121   2              {
+ 122   3                  power_ctrl.OTP2_alarm_flag = 1;
+ 123   3                  power_ctrl.OTP1_alarm_flag = 0;
  124   3              }
- 125   2          }else
- 126   1          {
- 127   2              EX0 = 1;            //外部中断控制
- 128   2              PWMB_BKR = 0x80;    //PWM控制
- 129   2              ac_dc.fan_delay_flag = 0;
- 130   2          }
- 131   1      }
- 132          
- 133          /**
- 134           * @brief 温度扫描，DHT11温湿度扫描 1s/次 控制220V输出使能
- 135           *
- 136           * @param[in] 
- 137           * 
- 138           * @return  
- 139           * 
- 140          **/
- 141          void temp_scan( void )
- 142          {
- 143   1          if( temp.temp_scan_flag == 1)
- 144   1          {
- 145   2              temp.temp_value1 =  get_temp(NTC);
- 146   2      
- 147   2              if( temp.temp_value1 >= 45 )
- 148   2              {
- 149   3                  FAN_TMEP = 1;
- 150   3              }
- 151   2              if( temp.temp_value1 <= 35 )
- 152   2              {
- 153   3                  FAN_TMEP = 0;
- 154   3              }
- 155   2              if( temp.temp_value1 >= ac_dc.alarm_temp_val )
- 156   2              {
- 157   3                  ac_dc.alarm_flag = 1;
- 158   3              }else
- 159   2              {
- 160   3                  ac_dc.alarm_flag = 0;
- 161   3              }
- 162   2              if( temp.temp_value1 >= 120 )
- 163   2              {
- 164   3                  EX0 = 0;
- 165   3                  ac_dc.all_ctrl_flag = 0;
- 166   3              }
- 167   2              temp.temp_scan_flag = 0;
- 168   2          }
- 169   1      }
- 170          
- 171          void channel_close( void )
+ 125   2              if( temp.NTC1_value < (power_ctrl.OTP_temp2 - 5) )
+ 126   2              {
+ 127   3                  power_ctrl.OTP2_alarm_flag = 0;
+ 128   3      
+ 129   3                  if( temp.NTC1_value >= slave_06.OTP_temp1 )    //过温保护1  蜂鸣器报警 滴-滴
+ 130   3                  {
+ 131   4                      power_ctrl.OTP1_alarm_flag = 1;
+ 132   4                  }
+ 133   3                  if( temp.NTC1_value < (slave_06.OTP_temp1 - 2))
+ 134   3                  {
+ 135   4                      power_ctrl.OTP1_alarm_flag = 0;
+ 136   4                      Buzzer = BUZZER_OFF;
+ 137   4                  }
+ 138   3              }
+ 139   2      
+ 140   2              temp.temp_scan_flag = 0;
+ 141   2          }
+ 142   1      }
+ 143          
+ 144          void mode_select( void )
+ 145          {
+ 146   1          eeprom_mode_write();
+ 147   1          eeprom_data_read();
+ 148   1          eeprom_data_init();
+ 149   1      }
+ 150          
+ 151          void fan_delay_ctrl( void )
+ 152          {
+ 153   1          static uint8_t signal_flag = 0;
+ 154   1      
+ 155   1          if( signal_flag != power_ctrl.signal_flag )
+ 156   1          {
+ 157   2              signal_flag = power_ctrl.signal_flag;
+ 158   2      
+ 159   2              power_ctrl.fan_delay_flag = (( slave_06.sync_switch == 1 ) && ( signal_flag == 0 )) ? 1 : 0;
+ 160   2          }
+ 161   1      }              
+ 162          
+ 163          /**
+ 164           * @brief AC DC输出使能控制
+ 165           *
+ 166           * @param[in] 
+ 167           * 
+ 168           * @return  
+ 169           * 
+ 170          **/
+ 171          void ac_dc_ctrl( void )
  172          {
- 173   1          switch (ac_dc.channel_num)
+ 173   1          if( power_ctrl.Power_Swtich == 1 )
  174   1          {
- 175   2              case 1:
- 176   2              ac_dc.ac_out1_flag = 1;
-C51 COMPILER V9.60.7.0   POWER_CRL                                                         07/08/2025 09:44:02 PAGE 4   
+ 175   2              power_ctrl.AC1_enable = (ACout_enable_judge() & (slave_06.channel_num & 0x01))? ENABLE : DISABLE; 
+C51 COMPILER V9.60.7.0   POWER_CRL                                                         12/28/2025 23:07:15 PAGE 4   
 
- 177   2              ac_dc.ac_out2_flag = ac_dc.ac_out3_flag = 0;
- 178   2              break;
- 179   2      
- 180   2              case 2:
- 181   2              ac_dc.ac_out2_flag = 1;
- 182   2              ac_dc.ac_out1_flag = ac_dc.ac_out3_flag = 0;
- 183   2              break;
- 184   2      
- 185   2              case 3:
- 186   2              ac_dc.ac_out3_flag = 1;
- 187   2              ac_dc.ac_out1_flag = ac_dc.ac_out2_flag = 0;
- 188   2              break;
- 189   2      
- 190   2              case 4:
- 191   2              ac_dc.ac_out1_flag = ac_dc.ac_out2_flag = 1;
- 192   2              ac_dc.ac_out3_flag = 0;
- 193   2              break;
- 194   2      
- 195   2              case 5:
- 196   2              ac_dc.ac_out1_flag = ac_dc.ac_out3_flag = 1;
- 197   2              ac_dc.ac_out2_flag = 0;
- 198   2              break;
- 199   2      
- 200   2              case 6:
- 201   2              ac_dc.ac_out2_flag = ac_dc.ac_out3_flag = 1;
- 202   2              ac_dc.ac_out1_flag = 0;
- 203   2              break;
- 204   2      
- 205   2              case 7:
- 206   2              ac_dc.ac_out1_flag = ac_dc.ac_out2_flag = ac_dc.ac_out3_flag = 1;
- 207   2              break;
- 208   2      
- 209   2          default:
- 210   2              break;
- 211   2          }
- 212   1      }
- 213          
- 214          void extern_24_listen( void )
- 215          {
- 216   1          static uint8_t now_val = 1;
- 217   1          if(now_val != ac_dc.signal_in_flag)
- 218   1          {
- 219   2              now_val = ac_dc.signal_in_flag;
- 220   2              if( now_val == 0 )
- 221   2              {
- 222   3                  ac_dc.fan_delay_flag = 1;
- 223   3              }else
- 224   2              {
- 225   3                  ac_dc.fan_delay_flag = 0;
- 226   3              }
- 227   2          }
- 228   1      }              
+             -        // 根据函数返回值设置使能状态
+ 176   2              power_ctrl.AC2_enable = (ACout_enable_judge() & (slave_06.channel_num & 0x02))? ENABLE : DISABLE; 
+             -        // 根据函数返回值设置使能状态
+ 177   2              power_ctrl.AC3_enable = (ACout_enable_judge() & (slave_06.channel_num & 0x04))? ENABLE : DISABLE; 
+             -        // 根据函数返回值设置使能状态
+ 178   2      
+ 179   2              power_ctrl.FAN_enable = (slave_06.sync_switch      == 0 ||    //同步关闭
+ 180   2                                       power_ctrl.signal_flag    == 1 ||    //有24V信号进来
+ 181   2                                       power_ctrl.fan_delay_flag == 1)      //风扇延时输出信号
+ 182   2                                       ? ENABLE : DISABLE;
+ 183   2          }else
+ 184   1          {
+ 185   2              power_ctrl.AC1_enable = power_ctrl.AC2_enable = power_ctrl.AC3_enable = power_ctrl.FAN_enable = DI
+             -SABLE;
+ 186   2          }
+ 187   1          
+ 188   1          PWMB_BKR = (power_ctrl.FAN_enable == ENABLE) ? FAN_ON : FAN_OFF;
+ 189   1      }
+ 190          
+ 191          
+ 192          /**
+ 193           * @brief AC输出使能判断
+ 194           *
+ 195           * @param[in]
+ 196           * 
+ 197           * @return  
+ 198           * 
+ 199          **/
+ 200          uint8_t ACout_enable_judge( void )                 
+ 201          {
+ 202   1          // 第1层检查：过温保护2
+ 203   1          // 如果温度超过过温保护阈值，立即返回 0（不加热）
+ 204   1          if ( temp.NTC1_value >= power_ctrl.OTP_temp2 ) 
+ 205   1          {
+ 206   2              return DISABLE;
+ 207   2          }
+ 208   1      
+ 209   1          // 第2层检查：功率是否为0
+ 210   1          if( slave_06.power_level == 0 )
+ 211   1          {
+ 212   2              return DISABLE;
+ 213   2          }
+ 214   1          
+ 215   1          // 第3层检查：工作模式
+ 216   1          if ( slave_06.sync_switch == SW_OPEN ) 
+ 217   1          {  
+ 218   2              if ( power_ctrl.signal_flag == 0 )         // 同步模式且无信号时，只有在预加热状�
+             -��下才允许加热
+ 219   2              {
+ 220   3                  return DISABLE;
+ 221   3              }
+ 222   2          }
+ 223   1          
+ 224   1          // 其他情况：允许加热
+ 225   1          return ENABLE;
+ 226   1      }
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =    501    ----
+   CODE SIZE        =    543    ----
    CONSTANT SIZE    =   ----    ----
-   XDATA SIZE       =     21    ----
+   XDATA SIZE       =     30    ----
+C51 COMPILER V9.60.7.0   POWER_CRL                                                         12/28/2025 23:07:15 PAGE 5   
+
    PDATA SIZE       =   ----    ----
    DATA SIZE        =   ----    ----
    IDATA SIZE       =   ----    ----
    BIT SIZE         =   ----    ----
-C51 COMPILER V9.60.7.0   POWER_CRL                                                         07/08/2025 09:44:02 PAGE 5   
-
 END OF MODULE INFORMATION.
 
 

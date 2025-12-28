@@ -7,15 +7,18 @@
 #include "ntc.h"
 #include "stdio.h"
 
-#define MODE_ADDR              0x0000
+#define MODE_ADDR               0x0000
 
-#define EEPROM_STATU_JUDGE    0X0010         
+#define EEPROM_STATU_JUDGE      0X0010         
 
 extern uint8_t mode_info[5];
 
 void eeprom_statu_judge( void );
-void eeprom_data_record( void );
-void eeprom_mode_record( void );
+
+void eeprom_mode_write( void );
+void eeprom_data_write( void );
+void eeprom_data_read( void );
+
 void eeprom_data_init( void );
 
 #endif

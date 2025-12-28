@@ -1,5 +1,8 @@
 {
     "files.exclude": {
         "**/.vscode": true
+    },
+    "files.associations": {
+        "eeprom_crl.h": "c"
     }
 }

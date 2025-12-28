@@ -95,7 +95,7 @@ LINK MAP OF MODULE:  ..\Output\QDC01_C (DELAY)
             CODE    0E75H     008BH     UNIT         ?PR?_LOOKUPTABLE?NTC
             CODE    0F00H     0086H     UNIT         ?PR?EEPROM_DATA_INIT?EEPROM_CRL
             CODE    0F86H     007FH     UNIT         ?PR?UART4_ISR?COMMUNICATION
-            CODE    1005H     0078H     UNIT         ?PR?EEPROM_DATA_RECORD?EEPROM_CRL
+            CODE    1005H     0078H     UNIT         ?PR?eeprom_data_write?EEPROM_CRL
             CODE    107DH     006EH     UNIT         ?PR?MODBUS_EVENT?MODBUS_RTU
             CODE    10EBH     0061H     UNIT         ?PR?_GET_TEMP?NTC
             CODE    114CH     0056H     UNIT         ?PR?TIM1_ISR?POWER_CRL
@@ -114,9 +114,9 @@ LINK MAP OF MODULE:  ..\Output\QDC01_C (DELAY)
             CODE    13D4H     001FH     UNIT         ?PR?GPIO_INIT?GPIO
             CODE    13F3H     001EH     UNIT         ?PR?_ISP_EARSE?EEPROM
             CODE    1411H     001CH     UNIT         ?PR?UART1_ISR?COMMUNICATION
-            CODE    142DH     001CH     UNIT         ?PR?EXTERN_24_LISTEN?POWER_CRL
+            CODE    142DH     001CH     UNIT         ?PR?fan_delay_ctrl?POWER_CRL
             CODE    1449H     001AH     UNIT         ?PR?ADC_INIT?ADC
-            CODE    1463H     001AH     UNIT         ?PR?EEPROM_MODE_RECORD?EEPROM_CRL
+            CODE    1463H     001AH     UNIT         ?PR?eeprom_mode_write?EEPROM_CRL
             CODE    147DH     0019H     UNIT         ?PR?UART1_INIT?UART
             CODE    1496H     0019H     UNIT         ?PR?UART4_SEND_STATU_INIT?COMMUNICATION
 BL51 BANKED LINKER/LOCATER V6.22.4.0                                                  06/03/2025  10:52:15  PAGE 3
@@ -125,7 +125,7 @@ LINK MAP OF MODULE:  ..\Output\QDC01_C (DELAY)
             CODE    14AFH     0019H     UNIT         ?PR?_FAN_CTRL?POWER_CRL
             CODE    14C8H     0016H     UNIT         ?PR?UART4_INIT?UART
             CODE    14DEH     0014H     UNIT         ?PR?_DELAY_US?DELAY
-            CODE    14F2H     0014H     UNIT         ?PR?_AC_220V_CRL?POWER_CRL
+            CODE    14F2H     0014H     UNIT         ?PR?_power_level_crl?POWER_CRL
             CODE    1506H     0013H     UNIT         ?PR?TIMER0_INIT?TIM
             CODE    1519H     0010H     UNIT         ?PR?TIMER3_INIT?TIM
             CODE    1529H     000BH     UNIT         ?PR?_PUTCHAR?COMMUNICATION
@@ -172,10 +172,10 @@ SEGMENT                                            BIT_GROUP          DATA_GROUP
   +--> ?PR?CHANNEL_CLOSE?POWER_CRL
   +--> ?PR?SYNC_CTRL?POWER_CRL
   +--> ?PR?_FAN_CTRL?POWER_CRL
-  +--> ?PR?_AC_220V_CRL?POWER_CRL
+  +--> ?PR?_power_level_crl?POWER_CRL
   +--> ?PR?_ISP_EARSE?EEPROM
   +--> ?PR?_ISP_WRITE?EEPROM
-  +--> ?PR?EEPROM_MODE_RECORD?EEPROM_CRL
+  +--> ?PR?eeprom_mode_write?EEPROM_CRL
   +--> ?PR?EEPROM_DATA_INIT?EEPROM_CRL
 
 ?PR?_ISP_READ?EEPROM                            -----    -----      -----    -----      -----    -----
@@ -186,7 +186,7 @@ SEGMENT                                            BIT_GROUP          DATA_GROUP
   +--> ?PR?ISP_IDLE?EEPROM
 
 ?PR?SYNC_CTRL?POWER_CRL                         -----    -----      -----    -----      -----    -----
-  +--> ?PR?EXTERN_24_LISTEN?POWER_CRL
+  +--> ?PR?fan_delay_ctrl?POWER_CRL
 
 ?PR?_ISP_EARSE?EEPROM                           -----    -----      -----    -----      -----    -----
   +--> ?PR?_DELAY_MS?DELAY
@@ -196,7 +196,7 @@ SEGMENT                                            BIT_GROUP          DATA_GROUP
   +--> ?PR?_DELAY_MS?DELAY
   +--> ?PR?ISP_IDLE?EEPROM
 
-?PR?EEPROM_MODE_RECORD?EEPROM_CRL               -----    -----      -----    -----      -----    -----
+?PR?eeprom_mode_write?EEPROM_CRL               -----    -----      -----    -----      -----    -----
   +--> ?PR?_ISP_EARSE?EEPROM
   +--> ?PR?_ISP_WRITE?EEPROM
 
@@ -205,7 +205,7 @@ SEGMENT                                            BIT_GROUP          DATA_GROUP
   +--> ?PR?CHANNEL_CLOSE?POWER_CRL
   +--> ?PR?SYNC_CTRL?POWER_CRL
   +--> ?PR?_FAN_CTRL?POWER_CRL
-  +--> ?PR?_AC_220V_CRL?POWER_CRL
+  +--> ?PR?_power_level_crl?POWER_CRL
 
 ?PR?MODBUS_EVENT?MODBUS_RTU                     -----    -----      -----    -----      -----    -----
   +--> ?PR?_MODBUS_CRC16?MODBUS_RTU
@@ -228,7 +228,7 @@ SEGMENT                                            BIT_GROUP          DATA_GROUP
 
 ?PR?MODBUS_FUN6?MODBUS_RTU                      -----    -----      -----    -----      -----    -----
   +--> ?PR?SYNC_CTRL?POWER_CRL
-  +--> ?PR?EEPROM_MODE_RECORD?EEPROM_CRL
+  +--> ?PR?eeprom_mode_write?EEPROM_CRL
   +--> ?PR?EEPROM_DATA_INIT?EEPROM_CRL
   +--> ?PR?_SLAVE_TO_MASTER?MODBUS_RTU
   +--> ?PR?_DELAY_MS?DELAY
@@ -237,15 +237,15 @@ SEGMENT                                            BIT_GROUP          DATA_GROUP
   +--> ?PR?CHANNEL_CLOSE?POWER_CRL
   +--> ?PR?SYNC_CTRL?POWER_CRL
   +--> ?PR?_FAN_CTRL?POWER_CRL
-  +--> ?PR?_AC_220V_CRL?POWER_CRL
-  +--> ?PR?EEPROM_MODE_RECORD?EEPROM_CRL
+  +--> ?PR?_power_level_crl?POWER_CRL
+  +--> ?PR?eeprom_mode_write?EEPROM_CRL
 BL51 BANKED LINKER/LOCATER V6.22.4.0                                                  06/03/2025  10:52:15  PAGE 5
 
 
   +--> ?PR?_SLAVE_TO_MASTER?MODBUS_RTU
-  +--> ?PR?EEPROM_DATA_RECORD?EEPROM_CRL
+  +--> ?PR?eeprom_data_write?EEPROM_CRL
 
-?PR?EEPROM_DATA_RECORD?EEPROM_CRL               -----    -----      -----    -----      020DH    0003H
+?PR?eeprom_data_write?EEPROM_CRL               -----    -----      -----    -----      020DH    0003H
   +--> ?PR?_ISP_EARSE?EEPROM
   +--> ?PR?_ISP_WRITE?EEPROM
 
@@ -902,8 +902,8 @@ SYMBOL TABLE OF MODULE:  ..\Output\QDC01_C (DELAY)
 BL51 BANKED LINKER/LOCATER V6.22.4.0                                                  06/03/2025  10:52:15  PAGE 16
 
 
-  C:1005H         PUBLIC        eeprom_data_record
-  C:1463H         PUBLIC        eeprom_mode_record
+  C:1005H         PUBLIC        eeprom_data_write
+  C:1463H         PUBLIC        eeprom_mode_write
   D:00D0H         PUBLIC        PSW
   -------         PROC          EEPROM_STATU_JUDGE
   -------         DO            
@@ -951,14 +951,14 @@ SYMBOL TABLE OF MODULE:  ..\Output\QDC01_C (DELAY)
   C:0B3EH         LINE#         59
   C:0B3EH         LINE#         60
   -------         ENDPROC       EEPROM_STATU_JUDGE
-  -------         PROC          EEPROM_MODE_RECORD
+  -------         PROC          eeprom_mode_write
   C:1463H         LINE#         62
   C:1463H         LINE#         63
   C:1463H         LINE#         64
   C:1469H         LINE#         65
   C:1474H         LINE#         66
-  -------         ENDPROC       EEPROM_MODE_RECORD
-  -------         PROC          EEPROM_DATA_RECORD
+  -------         ENDPROC       eeprom_mode_write
+  -------         PROC          eeprom_data_write
 BL51 BANKED LINKER/LOCATER V6.22.4.0                                                  06/03/2025  10:52:15  PAGE 17
 
 
@@ -981,7 +981,7 @@ SYMBOL TABLE OF MODULE:  ..\Output\QDC01_C (DELAY)
   C:1066H         LINE#         93
   C:1074H         LINE#         94
   C:107CH         LINE#         95
-  -------         ENDPROC       EEPROM_DATA_RECORD
+  -------         ENDPROC       eeprom_data_write
   -------         PROC          EEPROM_DATA_INIT
   -------         DO            
   X:020FH         SYMBOL        i
@@ -1096,8 +1096,8 @@ SYMBOL TABLE OF MODULE:  ..\Output\QDC01_C (DELAY)
   B:00C0H.2       PUBLIC        AC_Out2
   B:00C0H.3       PUBLIC        AC_Out3
   D:008BH         PUBLIC        TL1
-  C:14F2H         PUBLIC        _ac_220v_crl
-  C:142DH         PUBLIC        extern_24_listen
+  C:14F2H         PUBLIC        _power_level_crl
+  C:142DH         PUBLIC        fan_delay_ctrl
   C:0D59H         PUBLIC        channel_close
   C:130BH         PUBLIC        sync_ctrl
   B:0088H.6       PUBLIC        TR1
@@ -1151,13 +1151,13 @@ SYMBOL TABLE OF MODULE:  ..\Output\QDC01_C (DELAY)
   C:1197H         LINE#         75
   C:1197H         LINE#         76
   -------         ENDPROC       TIM1_ISR
-  -------         PROC          _AC_220V_CRL
+  -------         PROC          _power_level_crl
   D:0007H         SYMBOL        power_level
   C:14F2H         LINE#         85
   C:14F2H         LINE#         86
   C:14F2H         LINE#         87
   C:1505H         LINE#         88
-  -------         ENDPROC       _AC_220V_CRL
+  -------         ENDPROC       _power_level_crl
   -------         PROC          _FAN_CTRL
   D:0005H         SYMBOL        level
   C:14AFH         LINE#         98
@@ -1262,7 +1262,7 @@ SYMBOL TABLE OF MODULE:  ..\Output\QDC01_C (DELAY)
 BL51 BANKED LINKER/LOCATER V6.22.4.0                                                  06/03/2025  10:52:15  PAGE 22
 
 
-  -------         PROC          EXTERN_24_LISTEN
+  -------         PROC          fan_delay_ctrl
   -------         DO            
   X:0233H         SYMBOL        now_val
   -------         ENDDO         
@@ -1280,7 +1280,7 @@ SYMBOL TABLE OF MODULE:  ..\Output\QDC01_C (DELAY)
   C:1448H         LINE#         226
   C:1448H         LINE#         227
   C:1448H         LINE#         228
-  -------         ENDPROC       EXTERN_24_LISTEN
+  -------         ENDPROC       fan_delay_ctrl
   -------         ENDMOD        POWER_CRL
 
   -------         MODULE        COMMON

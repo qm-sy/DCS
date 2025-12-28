@@ -9,16 +9,28 @@
 
 #define MY_ADDR     0xDC
 
+#define FUN_03      0X03
+#define FUN_04      0X04
+#define FUN_06      0X06
+#define FUN_16      0X10
+
 typedef struct 
 {
     uint8_t  byte_info_H;                //DATA_H
     uint8_t  byte_info_L;                //DATA_L
-    uint8_t  byte_cnt;                   //BYTE NUM*2
-    uint8_t  send_value_addr;            //DATA1 H 位置
-    uint8_t  rcv_value_addr;             //DATA1 H 位置
-    uint16_t start_addr;                 //查询起始位置
-}MODBIS_INFO;
+    uint8_t  rcv_addr1_valH;             //DATA1 H 位置
 
+    uint16_t start_reg_03;                 //查询起始位置
+    uint16_t reg_num_03;                 //查询起始位置
+
+    uint16_t start_reg_04;                 //查询起始位置
+    uint16_t reg_num_04;                 //查询起始位置
+
+    uint16_t start_reg_16;                 //查询起始位置
+    uint16_t reg_num_16;                 //查询起始位置
+
+    uint16_t reg_addr_06;
+}MODBIS_INFO;
 
 extern MODBIS_INFO modbus;
 
