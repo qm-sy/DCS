@@ -64,7 +64,7 @@ void Tim3_ISR( void ) interrupt 19
     if( key_value == 15 )
     {
         modbus_04_scan_cnt++;
-        if(( modbus_04_scan_cnt == 500 ) && ( lcd_info.Power_Swtich == 1 ))
+        if(( modbus_04_scan_cnt == 200 ) && ( lcd_info.Power_Swtich == 1 ))
         {
             modbus.scan_flag_04_allow = 1;
         }

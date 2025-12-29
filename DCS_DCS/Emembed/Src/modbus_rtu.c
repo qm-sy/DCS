@@ -24,7 +24,7 @@ void Modbus_Event( void )
         if( crc == rccrc )
         {
             /*3-1.地址域校验通过，进入相应功能函数进行处理      */
-            if( rs485.rcv_buf[0] == SLAVE_ADDR )
+            if( rs485.rcv_buf[0] == MASTER_ADDR )
             {
                 switch ( rs485.rcv_buf[1] )
                 {
@@ -117,15 +117,51 @@ void Modbus_Fun4()
         modbus.byte_info_L = rs485.rcv_buf[modbus.rcv_addr1_valH + 1];
         switch (i)
         {
-            case 0:
+            case 0X00:
                 lcd_info.OTP1_alarm_flag = modbus.byte_info_L;
                 alarm_dis(lcd_info.OTP1_alarm_flag);
 
                 break;
 
-            case 1:
+            case 0X01:
                 lcd_info.signal_in = modbus.byte_info_L;
                 break;
+
+            /*  40001 通道查询                      */
+            case 0x02:
+                lcd_info.channel_num = modbus.byte_info_L;
+                break;
+
+            /*  40002 同步状态查询                  */        
+            case 0x03:
+                lcd_info.sync_switch = modbus.byte_info_L;
+                break;
+    
+            /*  40003 风速查询                      */    
+            case 0x04:
+                lcd_info.fan_level = modbus.byte_info_L;
+
+                break; 
+
+            /*  40004 功率查询                      */
+            case 0x05:
+                lcd_info.power_level = modbus.byte_info_L;
+
+                break;
+    
+            /*  40005 报警温度查询                  */    
+            case 0x06:
+                lcd_info.OTP_temp1 = modbus.byte_info_L;
+                break;  
+
+            /*  40006 模式查询                      */
+            case 0x07:
+                lcd_info.mode_num = modbus.byte_info_L;
+                break; 
+
+            case 0x08:
+                lcd_info.Power_Swtich = modbus.byte_info_L;
+                break; 
 
             default:
                 break;
@@ -133,6 +169,7 @@ void Modbus_Fun4()
         modbus.rcv_addr1_valH += 2;
     }
     modbus.modbus_04_rcv_over = 0;
+    screen_all_dis();
 }
 
 
@@ -144,12 +181,11 @@ void Modbus_Fun6( void )
 
     switch (modbus.reg_addr_06)
     {
-        case 5:
+        case 0X05:
         delay_ms(200); 
         read_slave_03();
         break;
     }
-
 }
 
 /**

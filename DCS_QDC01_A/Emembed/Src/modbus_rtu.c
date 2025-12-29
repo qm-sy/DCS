@@ -24,7 +24,7 @@ void Modbus_Event( void )
         if( crc == rccrc )
         {
             /*3-1.地址域校验通过，进入相应功能函数进行处理      */
-            if( rs485.rcv_buf[0] == MY_ADDR )
+            if( rs485.rcv_buf[0] == SLAVE_ADDR )
             {
                 switch ( rs485.rcv_buf[1] )
                 {
@@ -58,7 +58,7 @@ void Modbus_Fun3( void )
     modbus.start_reg_03    = rs485.rcv_buf[2] << 8 | rs485.rcv_buf[3];
     modbus.reg_num_03      = rs485.rcv_buf[4] << 8 | rs485.rcv_buf[5];
 
-    rs485.send_buf[0]  = MY_ADDR;                  //Addr
+    rs485.send_buf[0]  = MASTER_ADDR;                  //Addr
     rs485.send_buf[1]  = FUN_03;                   //Fun
     rs485.send_buf[2]  = modbus.reg_num_03 * 2;    //Byte Count
 
@@ -132,7 +132,7 @@ void Modbus_Fun4( void )
     modbus.start_reg_04 = rs485.rcv_buf[2] << 8 | rs485.rcv_buf[3];
     modbus.reg_num_04   = rs485.rcv_buf[4] << 8 | rs485.rcv_buf[5];
 
-    rs485.send_buf[0]  = MY_ADDR;                  //Addr
+    rs485.send_buf[0]  = MASTER_ADDR;                  //Addr
     rs485.send_buf[1]  = FUN_04;                   //Fun
     rs485.send_buf[2]  = modbus.reg_num_04 * 2;    //Byte Count
 
@@ -142,17 +142,61 @@ void Modbus_Fun4( void )
         modbus.byte_info_H = modbus.byte_info_L = 0X00;
         switch (i)
         {
-            case 0:
+            case 0x00:
                 modbus.byte_info_H = 0x00;
                 modbus.byte_info_L = power_ctrl.OTP1_alarm_flag;
 
                 break;
 
-            case 1:
+            case 0x01:
                 modbus.byte_info_H = 0x00;
                 modbus.byte_info_L = power_ctrl.signal_flag;
 
                 break;
+
+            /*  40001   加热通道设置                */
+            case 0x02:       
+                modbus.byte_info_H = 0x00;
+                modbus.byte_info_L = slave_06.channel_num;     
+                break;
+
+            /*  40002   同步开关设置                */
+            case 0x03:
+                modbus.byte_info_H = 0x00;
+                modbus.byte_info_L = slave_06.sync_switch;   
+                                     
+                break;
+
+            /*  40003   风速设置                    */
+            case 0x04: 
+                modbus.byte_info_H = 0x00;
+                modbus.byte_info_L = slave_06.fan_level;                                          
+                break;  
+                
+            /*  40004   功率档位设置                */
+            case 0x05:
+                modbus.byte_info_H = 0x00;
+                modbus.byte_info_L = slave_06.power_level;                                          
+                break;
+
+            /*  40005   报警温度设置                */
+            case 0x06:
+                modbus.byte_info_H = 0x00;
+                modbus.byte_info_L = slave_06.OTP_temp1;                                          
+                break;
+
+            /*  40006   模式设置                    */
+            case 0x07:  
+                modbus.byte_info_H = 0x00;
+                modbus.byte_info_L = slave_06.mode_num;                                 
+                break;
+
+            /*  40007   总开关设置                  */
+            case 0x08: 
+                modbus.byte_info_H = 0x00;
+                modbus.byte_info_L = power_ctrl.Power_Swtich;   
+                break;
+
             default:
                 break;
         }
@@ -327,9 +371,18 @@ void slave_to_master(uint8_t code_num,uint8_t length)
             break;    
 
         case 0x06:
-            memcpy(rs485.send_buf,rs485.rcv_buf,8);
+            memcpy(rs485.send_buf,rs485.rcv_buf,6);
+            if( rs485.send_buf[3] == 0x05 )
+            {
+                rs485.send_buf[0] = 0x01;
+            }
 
-            rs485.send_bytelength = length;
+            crc = MODBUS_CRC16(rs485.send_buf,6);
+
+            rs485.send_buf[7] = crc;               //CRC H
+            rs485.send_buf[6]     = crc >> 8;          //CRC L
+
+            rs485.send_bytelength = 8;
             
             break;   
 

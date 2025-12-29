@@ -7,7 +7,8 @@
 #include "tm1722.h"
 #include "common.h"
 
-#define SLAVE_ADDR     0xDC
+#define MASTER_ADDR    0x01
+#define SLAVE_ADDR     0x02
 
 #define FUN_03      0X03
 #define FUN_04      0X04
@@ -18,7 +19,7 @@
 #define REG_NUM_03          6
 
 #define START_REG_04        0
-#define REG_NUM_04          2
+#define REG_NUM_04          9
 
 typedef struct 
 {

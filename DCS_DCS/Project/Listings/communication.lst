@@ -1,4 +1,4 @@
-C51 COMPILER V9.60.7.0   COMMUNICATION                                                     12/29/2025 16:19:13 PAGE 1   
+C51 COMPILER V9.60.7.0   COMMUNICATION                                                     12/29/2025 21:49:48 PAGE 1   
 
 
 C51 COMPILER V9.60.7.0, COMPILATION OF MODULE COMMUNICATION
@@ -62,7 +62,7 @@ line level    source
   51   3              }
   52   2          }
   53   1          
-C51 COMPILER V9.60.7.0   COMMUNICATION                                                     12/29/2025 16:19:13 PAGE 2   
+C51 COMPILER V9.60.7.0   COMMUNICATION                                                     12/29/2025 21:49:48 PAGE 2   
 
   54   1          /* 1, 检测到S2RI置1，即接收完毕                       */
   55   1          if( S4CON & S4RI )
@@ -126,7 +126,7 @@ line level    source
  113   1          {
  114   2              TI = 0;
  115   2              TX1_busy_Flag = 0;
-C51 COMPILER V9.60.7.0   COMMUNICATION                                                     12/29/2025 16:19:13 PAGE 3   
+C51 COMPILER V9.60.7.0   COMMUNICATION                                                     12/29/2025 21:49:48 PAGE 3   
 
  116   2          }
  117   1          if(RI == 1)

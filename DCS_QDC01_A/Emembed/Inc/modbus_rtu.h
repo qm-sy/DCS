@@ -7,7 +7,8 @@
 #include "power_crl.h"
 #include "eeprom_crl.h"
 
-#define MY_ADDR     0xDC
+#define MASTER_ADDR    0x01
+#define SLAVE_ADDR     0x02
 
 #define FUN_03      0X03
 #define FUN_04      0X04

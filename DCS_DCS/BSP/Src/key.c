@@ -35,46 +35,52 @@ void key_scan( void )
                 break;
 
             case Channel:                                       //key1  短按-通道选择   长按-温度设置
-                while((key_value == Channel) && (key_continue_cnt > 0))
+                if( lcd_info.Power_Swtich == 1 )
                 {
-                    key_continue_cnt--;
-                    delay_ms(10);
-                }
-                if( key_continue_cnt == 0 )
-                {
-                    alarm_temp_set();
-                }else
-                {
-                    channel_ctrl();
+                    while((key_value == Channel) && (key_continue_cnt > 0))
+                    {
+                        key_continue_cnt--;
+                        delay_ms(10);
+                    }
+                    if( key_continue_cnt == 0 )
+                    {
+                        alarm_temp_set();
+                    }else
+                    {
+                        channel_ctrl();
+                    }
                 }
 
                 break;
                 
             case Mode:                                          //key2  短按-切换模式     长按-同步开/关
-                while((key_value == Mode) && (key_continue_cnt > 0))
+                if( lcd_info.Power_Swtich == 1 )
                 {
-                    key_continue_cnt--;
-                    delay_ms(10);
-                }
-                if( key_continue_cnt == 0 )
-                {
-                    sync_ctrl();
-                }else
-                {
-                    mode_ctrl();
+                    while((key_value == Mode) && (key_continue_cnt > 0))
+                    {
+                        key_continue_cnt--;
+                        delay_ms(10);
+                    }
+                    if( key_continue_cnt == 0 )
+                    {
+                        sync_ctrl();
+                    }else
+                    {
+                        mode_ctrl();
+                    }
                 }
 
                 break;
 
-            case Num_Up:    power_temp_set(Num_Up);     break;  //key5          温度/功率 ++
+            case Num_Up:    if( lcd_info.Power_Swtich == 1 ) power_temp_set(Num_Up);     break;  //key5          温度/功率 ++
                 
-            case Num_Down:  power_temp_set(Num_Down);   break;  //key4          温度/功率 --
+            case Num_Down:  if( lcd_info.Power_Swtich == 1 ) power_temp_set(Num_Down);   break;  //key4          温度/功率 --
 
-            case FanUp:     fan_level_ctrl(FanUp);      break;  //key3 + key5   风速++
+            case FanUp:     if( lcd_info.Power_Swtich == 1 ) fan_level_ctrl(FanUp);      break;  //key3 + key5   风速++
                 
-            case FanDown:   fan_level_ctrl(FanDown);    break;  //key3 + key4   风速--
+            case FanDown:   if( lcd_info.Power_Swtich == 1 ) fan_level_ctrl(FanDown);    break;  //key3 + key4   风速--
 
-            default:                                    break;
+            default:                                                                     break;
         }
         key.key_read_allow = 0;
     }

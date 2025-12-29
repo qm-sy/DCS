@@ -1,4 +1,4 @@
-C51 COMPILER V9.60.7.0   KEY                                                               12/29/2025 16:19:13 PAGE 1   
+C51 COMPILER V9.60.7.0   KEY                                                               12/29/2025 21:49:48 PAGE 1   
 
 
 C51 COMPILER V9.60.7.0, COMPILATION OF MODULE KEY
@@ -47,203 +47,215 @@ line level    source
   36   3      
   37   3                  case Channel:                                       //key1  短按-通道选择   长按-温�
              -�设置
-  38   3                      while((key_value == Channel) && (key_continue_cnt > 0))
+  38   3                      if( lcd_info.Power_Swtich == 1 )
   39   3                      {
-  40   4                          key_continue_cnt--;
-  41   4                          delay_ms(10);
-  42   4                      }
-  43   3                      if( key_continue_cnt == 0 )
-  44   3                      {
-  45   4                          alarm_temp_set();
-  46   4                      }else
-  47   3                      {
-  48   4                          channel_ctrl();
-  49   4                      }
-  50   3      
-  51   3                      break;
-  52   3                      
-C51 COMPILER V9.60.7.0   KEY                                                               12/29/2025 16:19:13 PAGE 2   
+  40   4                          while((key_value == Channel) && (key_continue_cnt > 0))
+  41   4                          {
+  42   5                              key_continue_cnt--;
+  43   5                              delay_ms(10);
+  44   5                          }
+  45   4                          if( key_continue_cnt == 0 )
+  46   4                          {
+  47   5                              alarm_temp_set();
+  48   5                          }else
+  49   4                          {
+  50   5                              channel_ctrl();
+  51   5                          }
+  52   4                      }
+C51 COMPILER V9.60.7.0   KEY                                                               12/29/2025 21:49:48 PAGE 2   
 
-  53   3                  case Mode:                                          //key2  短按-切换模式     长按-同
+  53   3      
+  54   3                      break;
+  55   3                      
+  56   3                  case Mode:                                          //key2  短按-切换模式     长按-同
              -步开/关
-  54   3                      while((key_value == Mode) && (key_continue_cnt > 0))
-  55   3                      {
-  56   4                          key_continue_cnt--;
-  57   4                          delay_ms(10);
-  58   4                      }
-  59   3                      if( key_continue_cnt == 0 )
-  60   3                      {
-  61   4                          sync_ctrl();
-  62   4                      }else
-  63   3                      {
-  64   4                          mode_ctrl();
-  65   4                      }
-  66   3      
-  67   3                      break;
-  68   3      
-  69   3                  case Num_Up:    power_temp_set(Num_Up);     break;  //key5          温度/功率 ++
-  70   3                      
-  71   3                  case Num_Down:  power_temp_set(Num_Down);   break;  //key4          温度/功率 --
+  57   3                      if( lcd_info.Power_Swtich == 1 )
+  58   3                      {
+  59   4                          while((key_value == Mode) && (key_continue_cnt > 0))
+  60   4                          {
+  61   5                              key_continue_cnt--;
+  62   5                              delay_ms(10);
+  63   5                          }
+  64   4                          if( key_continue_cnt == 0 )
+  65   4                          {
+  66   5                              sync_ctrl();
+  67   5                          }else
+  68   4                          {
+  69   5                              mode_ctrl();
+  70   5                          }
+  71   4                      }
   72   3      
-  73   3                  case FanUp:     fan_level_ctrl(FanUp);      break;  //key3 + key5   风速++
-  74   3                      
-  75   3                  case FanDown:   fan_level_ctrl(FanDown);    break;  //key3 + key4   风速--
-  76   3      
-  77   3                  default:                                    break;
-  78   3              }
-  79   2              key.key_read_allow = 0;
-  80   2          }
-  81   1      }
-  82          
-  83          void Power_Ctrl( uint8_t power_switch )
-  84          {
-  85   1          if( power_switch == POWER_ON )
-  86   1          {
-  87   2              led_status_ctrl(LED_OPEN);
-  88   2              lcd_info.Power_Swtich = 1;
-  89   2              write_slave_06(0x06,0x00,lcd_info.Power_Swtich);
-  90   2          }else
-  91   1          {
-  92   2              led_status_ctrl(LED_SLEEP);
-  93   2              lcd_info.Power_Swtich = 0;
-  94   2              write_slave_06(0x06,0x00,lcd_info.Power_Swtich);
-  95   2              delay_ms(1000);                             //避免误触再次开启
-  96   2          }
-  97   1      }
-  98          
-  99          void power_temp_set( uint8_t key_val )
- 100          {
- 101   1          if( key_val == Num_Up )
- 102   1          {
- 103   2              if( lcd_info.power_level < 100 )
- 104   2              {
- 105   3                  lcd_info.power_level += 5;
- 106   3              }
- 107   2          }
- 108   1          if( key_val == Num_Down )
- 109   1          {
- 110   2              if( lcd_info.power_level > 0 )
- 111   2              {
- 112   3                  lcd_info.power_level -= 5;
- 113   3              }
-C51 COMPILER V9.60.7.0   KEY                                                               12/29/2025 16:19:13 PAGE 3   
+  73   3                      break;
+  74   3      
+  75   3                  case Num_Up:    if( lcd_info.Power_Swtich == 1 ) power_temp_set(Num_Up);     break;  //key5   
+             -       温度/功率 ++
+  76   3                      
+  77   3                  case Num_Down:  if( lcd_info.Power_Swtich == 1 ) power_temp_set(Num_Down);   break;  //key4   
+             -       温度/功率 --
+  78   3      
+  79   3                  case FanUp:     if( lcd_info.Power_Swtich == 1 ) fan_level_ctrl(FanUp);      break;  //key3 + 
+             -key5   风速++
+  80   3                      
+  81   3                  case FanDown:   if( lcd_info.Power_Swtich == 1 ) fan_level_ctrl(FanDown);    break;  //key3 + 
+             -key4   风速--
+  82   3      
+  83   3                  default:                                                                     break;
+  84   3              }
+  85   2              key.key_read_allow = 0;
+  86   2          }
+  87   1      }
+  88          
+  89          void Power_Ctrl( uint8_t power_switch )
+  90          {
+  91   1          if( power_switch == POWER_ON )
+  92   1          {
+  93   2              led_status_ctrl(LED_OPEN);
+  94   2              lcd_info.Power_Swtich = 1;
+  95   2              write_slave_06(0x06,0x00,lcd_info.Power_Swtich);
+  96   2          }else
+  97   1          {
+  98   2              led_status_ctrl(LED_SLEEP);
+  99   2              lcd_info.Power_Swtich = 0;
+ 100   2              write_slave_06(0x06,0x00,lcd_info.Power_Swtich);
+ 101   2              delay_ms(1000);                             //避免误触再次开启
+ 102   2          }
+ 103   1      }
+ 104          
+ 105          void power_temp_set( uint8_t key_val )
+ 106          {
+ 107   1          if( key_val == Num_Up )
+ 108   1          {
+ 109   2              if( lcd_info.power_level < 100 )
+C51 COMPILER V9.60.7.0   KEY                                                               12/29/2025 21:49:48 PAGE 3   
 
- 114   2          }
- 115   1          num_dis(lcd_info.power_level);
- 116   1          write_slave_06(0x03,0x00,lcd_info.power_level);
- 117   1      }
- 118          
- 119          void fan_level_ctrl( uint8_t key_val )
- 120          {
- 121   1          if( key_val == FanUp )
- 122   1          {
- 123   2              if( lcd_info.fan_level < 6 )
- 124   2              {
- 125   3                  lcd_info.fan_level++;
- 126   3              }
- 127   2          }
- 128   1      
- 129   1          if( key_val == FanDown )
- 130   1          {
- 131   2              if( lcd_info.fan_level > 0 )
- 132   2              {
- 133   3                  lcd_info.fan_level--;
- 134   3              }    
- 135   2          }
- 136   1      
- 137   1          wind_dis(lcd_info.fan_level);
- 138   1          write_slave_06(0x02,0x00,lcd_info.fan_level);
- 139   1      }
- 140          
- 141          void channel_ctrl( void )
- 142          {
- 143   1          if(lcd_info.channel_num == 7)
- 144   1          {
- 145   2              lcd_info.channel_num = 1;
- 146   2          }else
- 147   1          {
- 148   2              lcd_info.channel_num += 1;
- 149   2          }
- 150   1          channel_dis(lcd_info.channel_num);
- 151   1          write_slave_06(0x00,0x00,lcd_info.channel_num);
- 152   1      }
- 153          
- 154          void mode_ctrl( void )
- 155          {
- 156   1          if( lcd_info.mode_num == 5 )
- 157   1          {
- 158   2              lcd_info.mode_num = 1;
- 159   2          }else
- 160   1          {
- 161   2              lcd_info.mode_num += 1;
- 162   2          }
- 163   1      
- 164   1          screen_clear();                 //一次清屏
- 165   1          mode_dis(DIS_ON);               //显示模式序号和标志
- 166   1          num_dis(lcd_info.mode_num);     
- 167   1          delay_ms(500);
- 168   1          screen_clear();
- 169   1          write_slave_06(0x05,0x00,lcd_info.mode_num);
- 170   1      }
- 171          
- 172          void alarm_temp_set( void )
- 173          {
+ 110   2              {
+ 111   3                  lcd_info.power_level += 5;
+ 112   3              }
+ 113   2          }
+ 114   1          if( key_val == Num_Down )
+ 115   1          {
+ 116   2              if( lcd_info.power_level > 0 )
+ 117   2              {
+ 118   3                  lcd_info.power_level -= 5;
+ 119   3              }
+ 120   2          }
+ 121   1          num_dis(lcd_info.power_level);
+ 122   1          write_slave_06(0x03,0x00,lcd_info.power_level);
+ 123   1      }
+ 124          
+ 125          void fan_level_ctrl( uint8_t key_val )
+ 126          {
+ 127   1          if( key_val == FanUp )
+ 128   1          {
+ 129   2              if( lcd_info.fan_level < 6 )
+ 130   2              {
+ 131   3                  lcd_info.fan_level++;
+ 132   3              }
+ 133   2          }
+ 134   1      
+ 135   1          if( key_val == FanDown )
+ 136   1          {
+ 137   2              if( lcd_info.fan_level > 0 )
+ 138   2              {
+ 139   3                  lcd_info.fan_level--;
+ 140   3              }    
+ 141   2          }
+ 142   1      
+ 143   1          wind_dis(lcd_info.fan_level);
+ 144   1          write_slave_06(0x02,0x00,lcd_info.fan_level);
+ 145   1      }
+ 146          
+ 147          void channel_ctrl( void )
+ 148          {
+ 149   1          if(lcd_info.channel_num == 7)
+ 150   1          {
+ 151   2              lcd_info.channel_num = 1;
+ 152   2          }else
+ 153   1          {
+ 154   2              lcd_info.channel_num += 1;
+ 155   2          }
+ 156   1          channel_dis(lcd_info.channel_num);
+ 157   1          write_slave_06(0x00,0x00,lcd_info.channel_num);
+ 158   1      }
+ 159          
+ 160          void mode_ctrl( void )
+ 161          {
+ 162   1          if( lcd_info.mode_num == 5 )
+ 163   1          {
+ 164   2              lcd_info.mode_num = 1;
+ 165   2          }else
+ 166   1          {
+ 167   2              lcd_info.mode_num += 1;
+ 168   2          }
+ 169   1      
+ 170   1          screen_clear();                 //一次清屏
+ 171   1          mode_dis(DIS_ON);               //显示模式序号和标志
+C51 COMPILER V9.60.7.0   KEY                                                               12/29/2025 21:49:48 PAGE 4   
+
+ 172   1          num_dis(lcd_info.mode_num);     
+ 173   1          delay_ms(500);
  174   1          screen_clear();
- 175   1          delay_ms(1000);
-C51 COMPILER V9.60.7.0   KEY                                                               12/29/2025 16:19:13 PAGE 4   
-
- 176   1          while(key_value != Channel)
- 177   1          {
- 178   2              Celsius_dis(DIS_ON);
- 179   2              if( lcd_info.alarm_temp_flick_flag == 1 )
- 180   2              {
- 181   3                  num_dis(lcd_info.OTP_temp1);
- 182   3              }else
- 183   2              {
- 184   3                  screen_write_val(addr_tab[ADDR_0B],0x00);
- 185   3                  screen_write_val(addr_tab[ADDR_0A],0X00);
- 186   3                  screen_write_val(addr_tab[ADDR_07],0X00);
- 187   3                  screen_write_val(addr_tab[ADDR_06],0X00);
- 188   3              }
- 189   2      
- 190   2              if( key_value == Num_Up )
- 191   2              {
- 192   3                  if( lcd_info.OTP_temp1 < 120 )
- 193   3                  {
- 194   4                      lcd_info.OTP_temp1 += 1;
- 195   4                      write_slave_06(0x04,0x00,lcd_info.OTP_temp1);
- 196   4                      delay_ms(300);
- 197   4                  }
- 198   3              }
- 199   2      
- 200   2              if( key_value == Num_Down )
- 201   2              {
- 202   3                  if( lcd_info.OTP_temp1 > 40 )
- 203   3                  {
- 204   4                      lcd_info.OTP_temp1 -= 1;
- 205   4                      write_slave_06(0x04,0x00,lcd_info.OTP_temp1);
- 206   4                      delay_ms(300);
- 207   4                  }
- 208   3              }
- 209   2          }
- 210   1          
- 211   1          screen_all_dis();
- 212   1          delay_ms(500);
- 213   1      }
- 214          
- 215          void sync_ctrl( void )
- 216          {
- 217   1          lcd_info.sync_switch = 1 - lcd_info.sync_switch;
- 218   1          sync_dis(lcd_info.sync_switch);
- 219   1          write_slave_06(0x01,0x00,lcd_info.sync_switch);
- 220   1          delay_ms(1000);
- 221   1      }
+ 175   1          write_slave_06(0x05,0x00,lcd_info.mode_num);
+ 176   1      }
+ 177          
+ 178          void alarm_temp_set( void )
+ 179          {
+ 180   1          screen_clear();
+ 181   1          delay_ms(1000);
+ 182   1          while(key_value != Channel)
+ 183   1          {
+ 184   2              Celsius_dis(DIS_ON);
+ 185   2              if( lcd_info.alarm_temp_flick_flag == 1 )
+ 186   2              {
+ 187   3                  num_dis(lcd_info.OTP_temp1);
+ 188   3              }else
+ 189   2              {
+ 190   3                  screen_write_val(addr_tab[ADDR_0B],0x00);
+ 191   3                  screen_write_val(addr_tab[ADDR_0A],0X00);
+ 192   3                  screen_write_val(addr_tab[ADDR_07],0X00);
+ 193   3                  screen_write_val(addr_tab[ADDR_06],0X00);
+ 194   3              }
+ 195   2      
+ 196   2              if( key_value == Num_Up )
+ 197   2              {
+ 198   3                  if( lcd_info.OTP_temp1 < 120 )
+ 199   3                  {
+ 200   4                      lcd_info.OTP_temp1 += 1;
+ 201   4                      write_slave_06(0x04,0x00,lcd_info.OTP_temp1);
+ 202   4                      delay_ms(300);
+ 203   4                  }
+ 204   3              }
+ 205   2      
+ 206   2              if( key_value == Num_Down )
+ 207   2              {
+ 208   3                  if( lcd_info.OTP_temp1 > 40 )
+ 209   3                  {
+ 210   4                      lcd_info.OTP_temp1 -= 1;
+ 211   4                      write_slave_06(0x04,0x00,lcd_info.OTP_temp1);
+ 212   4                      delay_ms(300);
+ 213   4                  }
+ 214   3              }
+ 215   2          }
+ 216   1          
+ 217   1          screen_all_dis();
+ 218   1          delay_ms(500);
+ 219   1      }
+ 220          
+ 221          void sync_ctrl( void )
+ 222          {
+ 223   1          lcd_info.sync_switch = 1 - lcd_info.sync_switch;
+ 224   1          sync_dis(lcd_info.sync_switch);
+ 225   1          write_slave_06(0x01,0x00,lcd_info.sync_switch);
+ 226   1          delay_ms(1000);
+ 227   1      }
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =    672    ----
+   CODE SIZE        =    725    ----
    CONSTANT SIZE    =   ----    ----
    XDATA SIZE       =      2       1
+C51 COMPILER V9.60.7.0   KEY                                                               12/29/2025 21:49:48 PAGE 5   
+
    PDATA SIZE       =   ----    ----
    DATA SIZE        =   ----    ----
    IDATA SIZE       =   ----    ----

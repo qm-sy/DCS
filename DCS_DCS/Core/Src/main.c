@@ -31,12 +31,13 @@ void main(void)
 	}
 	screen_init();
 
-	while ( lcd_info.lcd_connect_flag == 0 ) 
-	{
-		read_slave_03();
-		Modbus_Event();
-		delay_ms(50);
-	}
+	// while ( lcd_info.lcd_connect_flag == 0 ) 
+	// {
+	// 	read_slave_03();
+	// 	Modbus_Event();
+	// 	delay_ms(50);
+	// }
+	screen_all_dis();
 
 	printf("====== code start ====== \r\n");
 
