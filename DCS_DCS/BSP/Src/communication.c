@@ -13,13 +13,13 @@ uint8_t TX1_busy_Flag = 0;
 **/
 void Uart4_Send_Statu_Init( void )
 {
-    rs485.RX4_rev_end_Flag = 0;
-    rs485.TX4_buf[128] = 0;
-    rs485.RX4_buf[128] = 0;
-    rs485.TX4_send_bytelength = 0;
-    rs485.TX4_send_cnt = 0;
-    rs485.RX4_rev_timeout = 0;
-    rs485.RX4_rev_cnt = 0;
+    rs485.rcv_end_Flag = 0;
+    rs485.send_buf[128] = 0;
+    rs485.rcv_buf[128] = 0;
+    rs485.send_bytelength = 0;
+    rs485.send_cnt = 0;
+    rs485.rcv_timeout = 0;
+    rs485.rcv_cnt = 0;
     DR_485 = 0;
 }
 
@@ -39,14 +39,14 @@ void Uart4_ISR() interrupt 18
         /* 2, 软件将S4TI清零，等待发送标志位重置，可继续发送    */
         S4CON &= ~S4TI;         
         
-        /* 3, 依次将TX4_buf中数据送出（写S4BUF操作即为发送）    */
-        if( rs485.TX4_send_bytelength != 0 )
+        /* 3, 依次将send_buf中数据送出（写S4BUF操作即为发送）    */
+        if( rs485.send_bytelength != 0 )
         {
-            S4BUF = rs485.TX4_buf[rs485.TX4_send_cnt++];
-            rs485.TX4_send_bytelength--;
+            S4BUF = rs485.send_buf[rs485.send_cnt++];
+            rs485.send_bytelength--;
         }else
         {
-            rs485.TX4_send_cnt = 0;
+            rs485.send_cnt = 0;
             DR_485 = 0;
         }
     }
@@ -57,20 +57,20 @@ void Uart4_ISR() interrupt 18
         /* 2, 软件将S2RI清零，等待接收标志位重置，可继续发送    */
         S4CON &= ~S4RI;
         /* 3, 判断数据包是否接收完毕                           */
-        if( !rs485.RX4_rev_end_Flag )
+        if( !rs485.rcv_end_Flag )
         {
             /* 4, 数据包大于RX_buf 则从头计数                  */
-            if( rs485.RX4_rev_cnt > 128 )
+            if( rs485.rcv_cnt > 128 )
             {
-                rs485.RX4_rev_cnt = 0;
+                rs485.rcv_cnt = 0;
             }
 
-            /* 5, 依次将RX4_buf中数据接收（读S2BUF操作即为接收）*/
-            rs485.RX4_buf[rs485.RX4_rev_cnt] = S4BUF;
-            rs485.RX4_rev_cnt++;
+            /* 5, 依次将rcv_buf中数据接收（读S2BUF操作即为接收）*/
+            rs485.rcv_buf[rs485.rcv_cnt] = S4BUF;
+            rs485.rcv_cnt++;
         }
         /* 6, 重置接收完毕判断时间                              */
-        rs485.RX4_rev_timeout = 5;
+        rs485.rcv_timeout = 5;
     }
 }
 
@@ -84,16 +84,16 @@ void Uart4_ISR() interrupt 18
 void Tim0_ISR( void ) interrupt 1   //1ms
 {
     /* 1, 如果接收未超时                                             */
-    if ( rs485.RX4_rev_timeout != 0 )  
+    if ( rs485.rcv_timeout != 0 )  
     {
-        rs485.RX4_rev_timeout--;
+        rs485.rcv_timeout--;
         /* 2, 如果接收超时                                          */
-        if( rs485.RX4_rev_timeout == 0 )  
+        if( rs485.rcv_timeout == 0 )  
         {
-            if( rs485.RX4_rev_cnt > 0 )  
+            if( rs485.rcv_cnt > 0 )  
             {   
                  /* 3, 接收完毕标志位亮起并初始化接收缓冲区         */
-                rs485.RX4_rev_end_Flag = 1;    
+                rs485.rcv_end_Flag = 1;    
             }
         }
     } 

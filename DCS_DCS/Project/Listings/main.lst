@@ -1,11 +1,11 @@
-C51 COMPILER V9.60.7.0   MAIN                                                              06/27/2025 11:18:43 PAGE 1   
+C51 COMPILER V9.60.7.0   MAIN                                                              12/29/2025 16:19:13 PAGE 1   
 
 
 C51 COMPILER V9.60.7.0, COMPILATION OF MODULE MAIN
 OBJECT MODULE PLACED IN ..\Output\main.obj
-COMPILER INVOKED BY: D:\APP\Keil_v5\C51\BIN\C51.EXE ..\Core\Src\main.c LARGE OPTIMIZE(8,SPEED) BROWSE INCDIR(..\Driver;.
-                    -.\SYSTEM\Inc;..\BSP\Inc;..\Core\Inc;..\Emembed\Inc) DEBUG OBJECTEXTEND PRINT(.\Listings\main.lst) OBJECT(..\Output\main.
-                    -obj)
+COMPILER INVOKED BY: D:\APP\KEIL\MDK\C51\BIN\C51.EXE ..\Core\Src\main.c LARGE OPTIMIZE(8,SPEED) BROWSE INCDIR(..\Driver;
+                    -..\SYSTEM\Inc;..\BSP\Inc;..\Core\Inc;..\Emembed\Inc) DEBUG OBJECTEXTEND PRINT(.\Listings\main.lst) TABS(2) OBJECT(..\Out
+                    -put\main.obj)
 
 line level    source
 
@@ -15,65 +15,57 @@ line level    source
    4          void main(void)
    5          {
    6   1          P_SW2 |= 0x80;     //扩展寄存器(XFR)访问使能
-   7   1          GPIO_Init();
-   8   1      
-   9   1              /*  调试使用 printf  */
-  10   1              Uart1_Init();
-  11   1      
-  12   1              Timer3_Init();
+   7   1      
+   8   1          GPIO_Init();
+   9   1      
+  10   1        /*  调试使用 printf  */
+  11   1        Uart1_Init();
+  12   1        Timer3_Init();
   13   1      
-  14   1              /*  485通讯  */
-  15   1              Uart4_Init();
-  16   1              Uart4_Send_Statu_Init();    //接收发送初始化
+  14   1        /*  485通讯  */
+  15   1        Uart4_Init();
+  16   1        Uart4_Send_Statu_Init();    //接收发送初始化
   17   1          Timer0_Init();              //不定长数据接收
-  18   1      
-  19   1          EA = 1;     //打开总中断
-  20   1              key.key_read_allow = 1;
-  21   1              modbus.modbus_04_rcv_over = 1;
-  22   1      
-  23   1              led_status(LED_SLEEP);
-  24   1              lcd_info_init();
-  25   1      
-  26   1              delay_ms(1000);
-  27   1      
-  28   1              while(lcd_info.power_on == 0)
-  29   1              {
-  30   2                      key_scan();
-  31   2                      delay_ms(10);
-  32   2              }
-  33   1              screen_init();
-  34   1      
-  35   1              while ( lcd_info.lcd_connect_flag == 0 ) 
-  36   1              {
-  37   2                      get_slave_params_03();
-  38   2                      Modbus_Event();
-  39   2                      delay_ms(50);
-  40   2              }
-  41   1      
-  42   1              screen_clear();
-  43   1              screen_all_dis();
-  44   1      
-  45   1              printf("====== code start ====== \r\n");
-  46   1      
-  47   1          while(1)
-  48   1          {
-  49   2                      Modbus_Event();
-  50   2                      key_scan();
-  51   2                      fan_rotate();
-  52   2                      get_slave_status();
-  53   2      
-C51 COMPILER V9.60.7.0   MAIN                                                              06/27/2025 11:18:43 PAGE 2   
+  18   1        modbus_params_init();
+  19   1      
+  20   1          EA = 1;     //打开总中断
+  21   1      
+  22   1        lcd_info_init();
+  23   1        led_status_ctrl(LED_SLEEP);
+  24   1      
+  25   1        delay_ms(1000);
+  26   1      
+  27   1        while(lcd_info.Power_Swtich == 0)
+  28   1        {
+  29   2          key_scan();
+  30   2          delay_ms(10);
+  31   2        }
+  32   1        screen_init();
+  33   1      
+  34   1        while ( lcd_info.lcd_connect_flag == 0 ) 
+  35   1        {
+  36   2          read_slave_03();
+  37   2          Modbus_Event();
+  38   2          delay_ms(50);
+  39   2        }
+  40   1      
+  41   1        printf("====== code start ====== \r\n");
+  42   1      
+  43   1          while(1)
+  44   1          {
+  45   2          Modbus_Event();
+  46   2          key_scan();
+  47   2          sync_icon_ctrl();
+  48   2          get_slave_status();
+  49   2        }
+  50   1      }
+  51          
 
-  54   2                      delay_ms(10);
-  55   2              }
-  56   1      
-  57   1      
-  58   1      }
-  59          
 
+C51 COMPILER V9.60.7.0   MAIN                                                              12/29/2025 16:19:13 PAGE 2   
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =    125    ----
+   CODE SIZE        =    105    ----
    CONSTANT SIZE    =     28    ----
    XDATA SIZE       =   ----    ----
    PDATA SIZE       =   ----    ----

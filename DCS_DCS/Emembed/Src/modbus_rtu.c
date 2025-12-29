@@ -14,112 +14,123 @@ void Modbus_Event( void )
     uint16_t crc,rccrc;
     
     /*1.接收完毕                                           */
-    if( rs485.RX4_rev_end_Flag == 1 )
+    if( rs485.rcv_end_Flag == 1 )
     {
-        /*2.清空接收完毕标志位                              */    
-        rs485.RX4_rev_end_Flag = 0;
+        /*2.CRC校验                                         */                                     
+        crc = MODBUS_CRC16(rs485.rcv_buf, rs485.rcv_cnt-2);
+        rccrc = (rs485.rcv_buf[rs485.rcv_cnt - 1]) | (rs485.rcv_buf[rs485.rcv_cnt -2 ] << 8);
 
-        /*3.CRC校验                                         */
-        crc = MODBUS_CRC16(rs485.RX4_buf, rs485.RX4_rev_cnt-2);
-        rccrc = (rs485.RX4_buf[rs485.RX4_rev_cnt-1]) | (rs485.RX4_buf[rs485.RX4_rev_cnt-2]<<8);
-
-        /*4.清空接收计数                                    */
-        rs485.RX4_rev_cnt = 0; 
-
-        /*5.CRC校验通过，进行地址域校验                      */
+        /*3.CRC校验通过，进行地址域校验                      */
         if( crc == rccrc )
         {
-            /*6.地址域校验通过，进入相应功能函数进行处理      */
-            if( rs485.RX4_buf[0] == MY_ADDR )
+            /*3-1.地址域校验通过，进入相应功能函数进行处理      */
+            if( rs485.rcv_buf[0] == SLAVE_ADDR )
             {
-                switch ( rs485.RX4_buf[1] )
+                switch ( rs485.rcv_buf[1] )
                 {
-                    case 0x03:		Modbus_Fun3();		break;
-                    case 0x04:		Modbus_Fun4();		break;
-                    case 0x06:		Modbus_Fun6();      break;    
+                    case FUN_03:      Modbus_Fun3();          break;
+                    case FUN_04:      Modbus_Fun4();          break;
+                    case FUN_06:      Modbus_Fun6();          break;
 
-                    case 0x10:      Modbus_Fun16();     break;  
-                    default:                            break;
+                    default:                                  break;
                 }
             }
         }
+        /*4.清空接收完毕标志位  清空接收计数        */    
+        rs485.rcv_end_Flag = 0;
+        rs485.rcv_cnt = 0; 
     }
+}
+
+void modbus_params_init( void )
+{
+    modbus.modbus_04_rcv_over = 1;
+    modbus.scan_flag_04 = 0;
+    modbus.scan_flag_04_allow = 0;
 }
 
 void Modbus_Fun3()
 {
-    uint8_t start_addr_03 = 3;              //Slave reply  DATA1_H address
     uint16_t i;
-    for( i = 0; i < 6; i++)
+
+    modbus.rcv_addr1_valH = 3;                  //DATA1_H 位置 rcvbuf[3]
+
+    for( i = modbus.start_reg_03; i < modbus.start_reg_03 + modbus.reg_num_03; i++)
     {
+        modbus.byte_info_H = rs485.rcv_buf[modbus.rcv_addr1_valH];
+        modbus.byte_info_L = rs485.rcv_buf[modbus.rcv_addr1_valH + 1];
+
         switch (i)
         {
-         case 0:
-            lcd_info.channel_num = rs485.RX4_buf[start_addr_03 + 1];
+            /*  40001 通道查询                      */
+            case 0x00:
+                lcd_info.channel_num = modbus.byte_info_L;
+                break;
 
-             break;
- 
-         case 1:
-            lcd_info.sync_flag = rs485.RX4_buf[start_addr_03 + 1];
-            if( lcd_info.sync_flag == 1 )
-            {
-                send_to_slave_16();
-            }
-             break;
- 
-         case 2:
-            lcd_info.fan_level = rs485.RX4_buf[start_addr_03 + 1];
+            /*  40002 同步状态查询                  */        
+            case 0x01:
+                lcd_info.sync_switch = modbus.byte_info_L;
+                break;
+    
+            /*  40003 风速查询                      */    
+            case 0x02:
+                lcd_info.fan_level = modbus.byte_info_L;
 
-             break; 
- 
-         case 3:
-            lcd_info.power_level = rs485.RX4_buf[start_addr_03 + 1];
+                break; 
 
-             break;
- 
-         case 4:
-            lcd_info.alarm_temp_val = rs485.RX4_buf[start_addr_03 + 1];
+            /*  40004 功率查询                      */
+            case 0x03:
+                lcd_info.power_level = modbus.byte_info_L;
 
-             break;   
- 
-         case 5:
-            lcd_info.mode_num = rs485.RX4_buf[start_addr_03 + 1];
- 
-             break;   
- 
-         default:
-             break;
+                break;
+    
+            /*  40005 报警温度查询                  */    
+            case 0x04:
+                lcd_info.OTP_temp1 = modbus.byte_info_L;
+                break;  
+
+            /*  40006 模式查询                      */
+            case 0x05:
+                lcd_info.mode_num = modbus.byte_info_L;
+                break;   
+    
+            default:
+                break;
         }
-        start_addr_03 += 2;
+        modbus.rcv_addr1_valH += 2;
     }
     lcd_info.lcd_connect_flag = 1;
 
-    screen_all_dis();
+	screen_all_dis();
 }
 
 
 void Modbus_Fun4()
 {
-    uint8_t start_addr_04 = 3;              //Slave reply  DATA1_H address
     uint16_t i;
-    for( i = 0; i < 2; i++)
+
+    modbus.rcv_addr1_valH = 3;              //DATA1_H 位置 rcvbuf[3]
+
+    for(i = modbus.start_reg_04; i < modbus.start_reg_04 + modbus.reg_num_04; i++)
     {
+        modbus.byte_info_H = rs485.rcv_buf[modbus.rcv_addr1_valH];
+        modbus.byte_info_L = rs485.rcv_buf[modbus.rcv_addr1_valH + 1];
         switch (i)
         {
-        case 0:
-            alarm_dis( rs485.RX4_buf[start_addr_04 + 1] );
+            case 0:
+                lcd_info.OTP1_alarm_flag = modbus.byte_info_L;
+                alarm_dis(lcd_info.OTP1_alarm_flag);
 
-            break;
+                break;
 
-        case 1:
-            lcd_info.signal_in = rs485.RX4_buf[start_addr_04 + 1];
-            fan_rotate();
-            break;
+            case 1:
+                lcd_info.signal_in = modbus.byte_info_L;
+                break;
 
-         default:
-             break;
+            default:
+                break;
         }
-        start_addr_04 += 2;
+        modbus.rcv_addr1_valH += 2;
     }
     modbus.modbus_04_rcv_over = 0;
 }
@@ -127,18 +138,17 @@ void Modbus_Fun4()
 
 void Modbus_Fun6( void )
 {
-    if(rs485.RX4_buf[3] == 0x05)
-    {
-        get_slave_params_03();
-    }
-    if(rs485.RX4_buf[3] == 0x03)
-    {
-    }
+    modbus.rcv_addr1_valH = 4;
+    modbus.byte_info_H = rs485.rcv_buf[modbus.rcv_addr1_valH];
+    modbus.byte_info_L = rs485.rcv_buf[modbus.rcv_addr1_valH + 1];
 
-}
-
-void Modbus_Fun16( void )
-{
+    switch (modbus.reg_addr_06)
+    {
+        case 5:
+        delay_ms(200); 
+        read_slave_03();
+        break;
+    }
 
 }
 
@@ -181,168 +191,131 @@ uint16_t MODBUS_CRC16(uint8_t *buf, uint8_t length)
 	return	(crc16);
 }
 
-void get_slave_params_03( void )
-{
-    uint8_t send_buf[8] = {0xDC,0x03,0x00,0x00,0x00,0x06,0x45,0xD7};
-
-    while ( modbus.modbus_04_rcv_over == 0 );
-
-    memcpy(rs485.TX4_buf,send_buf,8);
-    rs485.TX4_send_bytelength = 8;
-
-    DR_485 = 1;                                 //485可以发送
-    delay_ms(2);
-    S4CON |= S4TI;                              //开始发送
-    delay_ms(1);
-}
-
-void get_slave_statu_04( void )
-{
-    uint8_t send_buf[8] = {0xDC,0x04,0x00,0x00,0x00,0x02,0x46,0x63};
-
-    //while ( modbus.modbus_04_rcv_over == 0 );
-
-    memcpy(rs485.TX4_buf,send_buf,8);
-    rs485.TX4_send_bytelength = 8;
-
-    DR_485 = 1;                                 //485可以发送
-    delay_ms(2);
-    S4CON |= S4TI;                              //开始发送
-    delay_ms(1);
-}
-
-void send_to_slave_06( void )
-{
-    uint8_t send_buf[8];
-    uint16_t crc;
-
-    while ( modbus.modbus_04_rcv_over == 0 );
-
-    send_buf[0] = 0xDC;
-    send_buf[1] = 0x06;
-    send_buf[2] = 0x00;
-    send_buf[3] = 0x05;
-    send_buf[4] = 0x00;
-    send_buf[5] = lcd_info.mode_num;
-   
-    crc = MODBUS_CRC16(send_buf,6);
-    send_buf[6] = crc>>8;
-    send_buf[7] = crc;
-
-    memcpy(rs485.TX4_buf,send_buf,8);
-   
-    rs485.TX4_send_bytelength = 8;
-    DR_485 = 1;                                 //485可以发送
-    delay_ms(2);
-    S4CON |= S4TI;                              //开始发送
-
-    delay_ms(10);
-}
-
-void send_to_slave_16( void )
-{
-   uint8_t send_buf[19];
-   uint16_t crc;
-
-   while ( modbus.modbus_04_rcv_over == 0 );
-
-   send_buf[0] = 0xDC;
-   send_buf[1] = 0x10;
-   send_buf[2] = 0x00;
-   send_buf[3] = 0x00;
-   send_buf[4] = 0x00;
-   send_buf[5] = 0x05;
-   send_buf[6] = 0x0A;
-
-   send_buf[7] = 0x00;
-   send_buf[8] = lcd_info.channel_num;
-
-   send_buf[9] = 0x00;
-   send_buf[10] = lcd_info.sync_flag;
-
-   send_buf[11] = 0x00;
-   send_buf[12] = lcd_info.fan_level;
-
-   send_buf[13] = 0x00;
-   send_buf[14] = lcd_info.power_level;
-
-   send_buf[15] = 0x00;
-   send_buf[16] = lcd_info.alarm_temp_val;
-
-   crc = MODBUS_CRC16(send_buf,17);
-
-   send_buf[17] = crc>>8;
-   send_buf[18] = crc;
-
-   memcpy(rs485.TX4_buf,send_buf,19);
-   
-   rs485.TX4_send_bytelength = 19;
-   DR_485 = 1;                                 //485可以发送
-   delay_ms(2);
-   S4CON |= S4TI;                              //开始发送
-   delay_ms(1);
-   printf("ttt \r\n");
-}
-
 void get_slave_status( void )
 {
     if(( modbus.scan_flag_04 == 1) && ( modbus.scan_flag_04_allow == 1 ))
     {
-        get_slave_statu_04();
+        read_slave_04();
         modbus.scan_flag_04 = 0;
     }
 }
 
-void slave_sleep_ctrl( void )
+/**
+ * @brief	读输出寄存器-03
+ *
+ * @param   void
+ *
+ * @return  void
+ */
+void read_slave_03( void )
 {
     uint8_t send_buf[8];
     uint16_t crc;
 
-    while ( modbus.modbus_04_rcv_over == 0 );
+    modbus.start_reg_03 = START_REG_03;
+    modbus.reg_num_03   = REG_NUM_03;
 
-    send_buf[0] = 0xDC;
-    send_buf[1] = 0x06;
-    send_buf[2] = 0x00;
-    send_buf[3] = 0x04;
-    send_buf[4] = 0x00;
-    send_buf[5] = 0x01;
-   
+
+    send_buf[0] = SLAVE_ADDR;       //Addr
+    send_buf[1] = FUN_03;           //Fun
+
+    /*   Value_H  && Value_L    */
+    send_buf[2] = modbus.start_reg_03 >> 8;
+    send_buf[3] = modbus.start_reg_03;
+    send_buf[4] = modbus.reg_num_03 >> 8;
+    send_buf[5] = modbus.reg_num_03;
+
+    /*   crc    */
     crc = MODBUS_CRC16(send_buf,6);
-    send_buf[6] = crc>>8;
+    send_buf[6] = crc >> 8;
     send_buf[7] = crc;
 
-    memcpy(rs485.TX4_buf,send_buf,8);
-   
-    rs485.TX4_send_bytelength = 8;
+    /*   发送，后使能接收    */
+    memcpy(rs485.send_buf,send_buf,8);
+    
+    rs485.send_bytelength = 8;
     DR_485 = 1;                                 //485可以发送
     delay_ms(2);
     S4CON |= S4TI;                              //开始发送
     delay_ms(1);
 }
 
-void slave_work_ctrl( void )
+/**
+ * @brief	读输入寄存器-04
+ *
+ * @param   void
+ *
+ * @return  void
+ */
+void read_slave_04( void )
+{
+    uint8_t send_buf[8];
+    uint16_t crc;
+
+    modbus.start_reg_04 = START_REG_04;
+    modbus.reg_num_04   = REG_NUM_04;
+
+    send_buf[0] = SLAVE_ADDR;       //Addr
+    send_buf[1] = FUN_04;           //Fun
+
+    /*   Value_H  && Value_L    */
+    send_buf[2] = modbus.start_reg_04 >> 8;
+    send_buf[3] = modbus.start_reg_04;
+    send_buf[4] = modbus.reg_num_04 >> 8;
+    send_buf[5] = modbus.reg_num_04;
+
+    /*   crc    */
+    crc = MODBUS_CRC16(send_buf,6);
+    send_buf[6] = crc >> 8;
+    send_buf[7] = crc;
+
+    
+    /*   发送，后使能接收    */
+    memcpy(rs485.send_buf,send_buf,8);
+    
+    rs485.send_bytelength = 8;
+    DR_485 = 1;                                 //485可以发送
+    delay_ms(2);
+    S4CON |= S4TI;                              //开始发送
+    delay_ms(1);
+}
+
+/**
+ * @brief	写单个输出寄存器-06
+ *
+ * @param   reg_addr：要写的寄存器地址
+ *          reg_val： 要写的值
+ *
+ * @return  void
+ */
+void write_slave_06( uint16_t reg_addr, uint8_t reg_val_H, uint8_t reg_val_L)
 {
     uint8_t send_buf[8];
     uint16_t crc;
 
     while ( modbus.modbus_04_rcv_over == 0 );
 
-    send_buf[0] = 0xDC;
-    send_buf[1] = 0x06;
-    send_buf[2] = 0x00;
-    send_buf[3] = 0x03;
-    send_buf[4] = 0x00;
-    send_buf[5] = 0x01;
-   
+    modbus.reg_addr_06 = reg_addr;
+
+    send_buf[0] = SLAVE_ADDR;       //Addr
+    send_buf[1] = FUN_06;           //Fun
+
+    /*   Value_H  && Value_L    */
+    send_buf[2] = modbus.reg_addr_06 >> 8;
+    send_buf[3] = modbus.reg_addr_06;
+    send_buf[4] = reg_val_H;
+    send_buf[5] = reg_val_L;
+
+    /*   crc    */
     crc = MODBUS_CRC16(send_buf,6);
-    send_buf[6] = crc>>8;
+    send_buf[6] = crc >> 8;
     send_buf[7] = crc;
 
-    memcpy(rs485.TX4_buf,send_buf,8);
-   
-    rs485.TX4_send_bytelength = 8;
+    /*   发送，后使能接收    */
+    memcpy(rs485.send_buf,send_buf,8);
+
+    rs485.send_bytelength = 8;
     DR_485 = 1;                                 //485可以发送
     delay_ms(2);
     S4CON |= S4TI;                              //开始发送
-    delay_ms(1);
 }

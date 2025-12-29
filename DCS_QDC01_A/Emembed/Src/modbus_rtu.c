@@ -68,42 +68,40 @@ void Modbus_Fun3( void )
         modbus.byte_info_H = modbus.byte_info_L = 0X00;
         switch (i)
         {   
-            /*  40001 通道查询                     */
+            /*  40001 通道查询                      */
             case 0x00:
-
                 modbus.byte_info_H = 0;
                 modbus.byte_info_L = slave_06.channel_num;
-
                 break;
 
-            /*  40002 同步状态查询                     */    
+            /*  40002 同步状态查询                  */    
             case 0x01:
                 modbus.byte_info_H = 0;
                 modbus.byte_info_L = slave_06.sync_switch;
                 break;
 
-            /*  40003 风速查询                         */
+            /*  40003 风速查询                      */
             case 0x02:    
                 modbus.byte_info_H = 0;
                 modbus.byte_info_L = slave_06.fan_level;
 
                 break;
 
-            /*  40004 功率查询              */
+            /*  40004 功率查询                      */
             case 0x03:    
                 modbus.byte_info_H = 0;
                 modbus.byte_info_L = slave_06.power_level;
 
                 break;
 
-            /*  40005 工作模式查询                     */
+            /*  40005 报警温度查询                  */
             case 0x04:   
                 modbus.byte_info_H = 0;
                 modbus.byte_info_L = slave_06.OTP_temp1;
 
                 break;
 
-            /*  40006 报警温度查询                     */
+            /*  40006 模式查询                      */
             case 0x05:   
                 modbus.byte_info_H = 0;
                 modbus.byte_info_L = slave_06.mode_num;
@@ -215,13 +213,14 @@ void Modbus_Fun6( void )
 
         /*  40007   总开关设置                  */
         case 0x06:  
-
+            power_ctrl.Power_Swtich = rs485.rcv_buf[5];
             break;
 
         default:
             break;   
     }
     slave_to_master(FUN_06,8);
+    
     eeprom_data_write();
     Buzzer = 1;
 }

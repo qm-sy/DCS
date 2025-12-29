@@ -1,11 +1,11 @@
-C51 COMPILER V9.60.7.0   GPIO                                                              06/27/2025 11:18:42 PAGE 1   
+C51 COMPILER V9.60.7.0   GPIO                                                              12/29/2025 16:19:13 PAGE 1   
 
 
 C51 COMPILER V9.60.7.0, COMPILATION OF MODULE GPIO
 OBJECT MODULE PLACED IN ..\Output\gpio.obj
-COMPILER INVOKED BY: D:\APP\Keil_v5\C51\BIN\C51.EXE ..\Core\Src\gpio.c LARGE OPTIMIZE(8,SPEED) BROWSE INCDIR(..\Driver;.
-                    -.\SYSTEM\Inc;..\BSP\Inc;..\Core\Inc;..\Emembed\Inc) DEBUG OBJECTEXTEND PRINT(.\Listings\gpio.lst) OBJECT(..\Output\gpio.
-                    -obj)
+COMPILER INVOKED BY: D:\APP\KEIL\MDK\C51\BIN\C51.EXE ..\Core\Src\gpio.c LARGE OPTIMIZE(8,SPEED) BROWSE INCDIR(..\Driver;
+                    -..\SYSTEM\Inc;..\BSP\Inc;..\Core\Inc;..\Emembed\Inc) DEBUG OBJECTEXTEND PRINT(.\Listings\gpio.lst) TABS(2) OBJECT(..\Out
+                    -put\gpio.obj)
 
 line level    source
 
@@ -22,7 +22,7 @@ line level    source
   11          #include "gpio.h"
   12          
   13          /**
-  14           * @brief       GPIO初始化
+  14           * @brief GPIO初始化
   15           *
   16           * @param   void
   17           *

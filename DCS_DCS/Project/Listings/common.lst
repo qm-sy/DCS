@@ -1,11 +1,11 @@
-C51 COMPILER V9.60.7.0   COMMON                                                            06/27/2025 11:18:44 PAGE 1   
+C51 COMPILER V9.60.7.0   COMMON                                                            12/29/2025 16:19:13 PAGE 1   
 
 
 C51 COMPILER V9.60.7.0, COMPILATION OF MODULE COMMON
 OBJECT MODULE PLACED IN ..\Output\common.obj
-COMPILER INVOKED BY: D:\APP\Keil_v5\C51\BIN\C51.EXE ..\Emembed\Src\common.c LARGE OPTIMIZE(8,SPEED) BROWSE INCDIR(..\Dri
-                    -ver;..\SYSTEM\Inc;..\BSP\Inc;..\Core\Inc;..\Emembed\Inc) DEBUG OBJECTEXTEND PRINT(.\Listings\common.lst) OBJECT(..\Outpu
-                    -t\common.obj)
+COMPILER INVOKED BY: D:\APP\KEIL\MDK\C51\BIN\C51.EXE ..\Emembed\Src\common.c LARGE OPTIMIZE(8,SPEED) BROWSE INCDIR(..\Dr
+                    -iver;..\SYSTEM\Inc;..\BSP\Inc;..\Core\Inc;..\Emembed\Inc) DEBUG OBJECTEXTEND PRINT(.\Listings\common.lst) TABS(2) OBJECT
+                    -(..\Output\common.obj)
 
 line level    source
 
@@ -14,7 +14,7 @@ line level    source
    3          uint16_t modbus_04scan_cnt = 0;
    4          
    5          /**
-   6           * @brief       一些定时执行的事件   Timer3：10ms
+   6           * @brief 一些定时执行的事件   Timer3：10ms
    7           *
    8           * @param   
    9           *
@@ -24,78 +24,79 @@ line level    source
   13          {
   14   1          static uint16_t key_scan_cnt = 0;
   15   1          static uint16_t key_read_cnt = 0;
-  16   1          static uint16_t fan_rotate_cnt = 0;
+  16   1          static uint16_t sync_icon_ctrl_cnt = 0;
   17   1          static uint16_t alarm_temp_flick_cnt = 0;
   18   1          static uint16_t modbus_04_scan_cnt = 0;
   19   1          static uint16_t modbus_04_rcv_over_cnt = 0;
-  20   1          /* 1, 键值扫描           */
-  21   1          key_scan_cnt++;
-  22   1          if( key_scan_cnt >= 5 )
-  23   1          {
-  24   2              key_value  = (P2 & 0X0F);
-  25   2              key_scan_cnt = 0;
-  26   2          }
-  27   1      
-  28   1          /* 2, 按键有效间隔         */
-  29   1          if( key.key_read_allow == 0 )
-  30   1          {
-  31   2              key_read_cnt++;
-  32   2              if( key_read_cnt == 20 )
-  33   2              {
-  34   3                  key_read_cnt = 0;
-  35   3                  key.key_read_allow = 1;
-  36   3              }
-  37   2          }
-  38   1          /* 3, 风扇旋转           */
-  39   1          fan_rotate_cnt++;
-  40   1          if(fan_rotate_cnt == 15)
-  41   1          {
-  42   2              lcd_info.fan_rotate_flag = 1 - lcd_info.fan_rotate_flag;
-  43   2              fan_rotate_cnt = 0;
-  44   2          }
-  45   1      
-  46   1          /* 4, 04查询           */
-  47   1          modbus_04scan_cnt++;
-  48   1          if( modbus_04scan_cnt == 100 )
-  49   1          {
-  50   2              modbus.scan_flag_04 = 1;
-  51   2              modbus_04scan_cnt = 0;
-  52   2          }
-  53   1      
-C51 COMPILER V9.60.7.0   COMMON                                                            06/27/2025 11:18:44 PAGE 2   
+  20   1      
+  21   1          /* 1, 键值扫描           */
+  22   1          key_scan_cnt++;
+  23   1          if( key_scan_cnt >= 5 )
+  24   1          {
+  25   2              key_value  = (P2 & 0X0F);
+  26   2              key_scan_cnt = 0;
+  27   2          }
+  28   1      
+  29   1          /* 2, 按键有效间隔         */
+  30   1          if( key.key_read_allow == 0 )
+  31   1          {
+  32   2              key_read_cnt++;
+  33   2              if( key_read_cnt == 20 )
+  34   2              {
+  35   3                  key_read_cnt = 0;
+  36   3                  key.key_read_allow = 1;
+  37   3              }
+  38   2          }
+  39   1          /* 3, 风扇旋转           */
+  40   1          sync_icon_ctrl_cnt++;
+  41   1          if(sync_icon_ctrl_cnt == 15)
+  42   1          {
+  43   2              lcd_info.sync_icon_ctrl_flag = 1 - lcd_info.sync_icon_ctrl_flag;
+  44   2              sync_icon_ctrl_cnt = 0;
+  45   2          }
+  46   1      
+  47   1          /* 4, 04查询           */
+  48   1          modbus_04scan_cnt++;
+  49   1          if( modbus_04scan_cnt == 100 )
+  50   1          {
+  51   2              modbus.scan_flag_04 = 1;
+  52   2              modbus_04scan_cnt = 0;
+  53   2          }
+C51 COMPILER V9.60.7.0   COMMON                                                            12/29/2025 16:19:13 PAGE 2   
 
-  54   1          /* 5, 报警温度闪烁           */
-  55   1          alarm_temp_flick_cnt++;
-  56   1          if( alarm_temp_flick_cnt == 50 )
-  57   1          {
-  58   2              lcd_info.alarm_temp_flick_flag = 1 - lcd_info.alarm_temp_flick_flag;
-  59   2              alarm_temp_flick_cnt = 0;
-  60   2          }
-  61   1      
-  62   1          /* 6, 按键操作忙           */
-  63   1          if( key_value == 15 )
-  64   1          {
-  65   2              modbus_04_scan_cnt++;
-  66   2              if(( modbus_04_scan_cnt == 500 ) && ( lcd_info.power_on == 1 ))
-  67   2              {
-  68   3                  modbus.scan_flag_04_allow = 1;
-  69   3              }
-  70   2          }else
-  71   1          {
-  72   2              modbus_04_scan_cnt = 0;
-  73   2              modbus.scan_flag_04_allow = 0;
-  74   2          }
-  75   1      
-  76   1          if( modbus.modbus_04_rcv_over == 0 )
-  77   1          {
-  78   2              modbus_04_rcv_over_cnt++;
-  79   2              if( modbus_04_rcv_over_cnt == 2 )
-  80   2              {
-  81   3                  modbus.modbus_04_rcv_over = 1;
-  82   3                  modbus_04_rcv_over_cnt = 0;
-  83   3              }
-  84   2          }
-  85   1      }
+  54   1      
+  55   1          /* 5, 报警温度闪烁           */
+  56   1          alarm_temp_flick_cnt++;
+  57   1          if( alarm_temp_flick_cnt == 50 )
+  58   1          {
+  59   2              lcd_info.alarm_temp_flick_flag = 1 - lcd_info.alarm_temp_flick_flag;
+  60   2              alarm_temp_flick_cnt = 0;
+  61   2          }
+  62   1      
+  63   1          /* 6, 按键操作忙           */
+  64   1          if( key_value == 15 )
+  65   1          {
+  66   2              modbus_04_scan_cnt++;
+  67   2              if(( modbus_04_scan_cnt == 500 ) && ( lcd_info.Power_Swtich == 1 ))
+  68   2              {
+  69   3                  modbus.scan_flag_04_allow = 1;
+  70   3              }
+  71   2          }else
+  72   1          {
+  73   2              modbus_04_scan_cnt = 0;
+  74   2              modbus.scan_flag_04_allow = 0;
+  75   2          }
+  76   1      
+  77   1          if( modbus.modbus_04_rcv_over == 0 )
+  78   1          {
+  79   2              modbus_04_rcv_over_cnt++;
+  80   2              if( modbus_04_rcv_over_cnt == 2 )
+  81   2              {
+  82   3                  modbus.modbus_04_rcv_over = 1;
+  83   3                  modbus_04_rcv_over_cnt = 0;
+  84   3              }
+  85   2          }
+  86   1      }
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE

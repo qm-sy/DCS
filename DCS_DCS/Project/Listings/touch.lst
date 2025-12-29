@@ -211,24 +211,24 @@ line level    source
  190                  KEY_Deal();     
  191                  if( KEY_ReadState(KEY1) == KEY_PRESS)
  192                  {
- 193                          if( lcd_info.power_on == 0 )
+ 193                          if( lcd_info.Power_Swtich == 0 )
  194                          {
- 195                                  led_status(LED_OPEN);
- 196                                  lcd_info.power_on = 1;
+ 195                                  led_status_ctrl(LED_OPEN);
+ 196                                  lcd_info.Power_Swtich = 1;
  197                                  slave_work_ctrl();
  198                          }
  199                  }
  200                  if( KEY_ReadState(KEY1) == KEY_LONGOVER )       
  201                  {
- 202                          if( lcd_info.power_on == 1 )
+ 202                          if( lcd_info.Power_Swtich == 1 )
  203                          {
- 204                                  led_status(LED_SLEEP);
- 205                                  lcd_info.power_on = 0;
+ 204                                  led_status_ctrl(LED_SLEEP);
+ 205                                  lcd_info.Power_Swtich = 0;
  206                                  slave_sleep_ctrl();
  207                                  modbus.scan_flag_04_allow = 0;
  208                          }
  209                  }
- 210                  if( lcd_info.power_on == 1 )
+ 210                  if( lcd_info.Power_Swtich == 1 )
  211                  {
  212                          if(( KEY_ReadState(KEY4) == KEY_PRESS ) && ( key_val.key4_scan_allow == 1 ))                                                                                    //调节通道
  213                          {
@@ -262,7 +262,7 @@ line level    source
  239                          {
  240                                  modbus.scan_flag_04_allow = 0;
  241                                  mode_choose();
- 242                                  send_to_slave_06();
+ 242                                  write_slave_06();
  243                                  delay_ms(100);
  244                          }
  245          
@@ -291,8 +291,8 @@ line level    source
  268                                  }
  269                                  if( KEY_ReadState(KEY5) == KEY_PRESS )
  270                                  {
- 271                                          lcd_info.sync_flag = 1 - lcd_info.sync_flag;
- 272                                          sync_dis(lcd_info.sync_flag);
+ 271                                          lcd_info.sync_switch = 1 - lcd_info.sync_switch;
+ 272                                          sync_dis(lcd_info.sync_switch);
  273                                          send_to_slave_16();
  274                                  }
  275                          }
@@ -334,11 +334,11 @@ line level    source
  309                          num_dis(lcd_info.power_level);
  310                  }else
  311                  {
- 312                          if( lcd_info.alarm_temp_val < 120 )
+ 312                          if( lcd_info.OTP_temp1 < 120 )
  313                          {
- 314                                  lcd_info.alarm_temp_val += 1;
+ 314                                  lcd_info.OTP_temp1 += 1;
  315                          }
- 316                          num_dis(lcd_info.alarm_temp_val);
+ 316                          num_dis(lcd_info.OTP_temp1);
  317                  }
  318          }
  319          
@@ -354,11 +354,11 @@ line level    source
  329                          num_dis(lcd_info.power_level);
  330                  }else
  331                  {
- 332                          if( lcd_info.alarm_temp_val > 40 )
+ 332                          if( lcd_info.OTP_temp1 > 40 )
  333                          {
- 334                                  lcd_info.alarm_temp_val -= 1;
+ 334                                  lcd_info.OTP_temp1 -= 1;
  335                          }
- 336                          num_dis(lcd_info.alarm_temp_val);
+ 336                          num_dis(lcd_info.OTP_temp1);
  337                  }
  338          }
  339          
@@ -408,11 +408,11 @@ line level    source
  381              
  382              mode_dis(DIS_OFF);
  383          
- 384              sync_dis(lcd_info.sync_flag);
+ 384              sync_dis(lcd_info.sync_switch);
  385              num_dis(lcd_info.power_level);
  386              channel_dis(lcd_info.channel_num);
  387              wind_dis(lcd_info.fan_level);       
- 388                  percentage_dis(DIS_ON);  
+ 388                  Percentage_dis(DIS_ON);  
  389          }
 
 C51 COMPILATION COMPLETE.  0 WARNING(S),  2 ERROR(S)

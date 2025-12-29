@@ -13,10 +13,11 @@ void Tim3_ISR( void ) interrupt 19
 {
     static uint16_t key_scan_cnt = 0;
     static uint16_t key_read_cnt = 0;
-    static uint16_t fan_rotate_cnt = 0;
+    static uint16_t sync_icon_ctrl_cnt = 0;
     static uint16_t alarm_temp_flick_cnt = 0;
     static uint16_t modbus_04_scan_cnt = 0;
     static uint16_t modbus_04_rcv_over_cnt = 0;
+
     /* 1, 键值扫描           */
     key_scan_cnt++;
     if( key_scan_cnt >= 5 )
@@ -36,11 +37,11 @@ void Tim3_ISR( void ) interrupt 19
         }
     }
     /* 3, 风扇旋转           */
-    fan_rotate_cnt++;
-    if(fan_rotate_cnt == 15)
+    sync_icon_ctrl_cnt++;
+    if(sync_icon_ctrl_cnt == 15)
     {
-        lcd_info.fan_rotate_flag = 1 - lcd_info.fan_rotate_flag;
-        fan_rotate_cnt = 0;
+        lcd_info.sync_icon_ctrl_flag = 1 - lcd_info.sync_icon_ctrl_flag;
+        sync_icon_ctrl_cnt = 0;
     }
 
     /* 4, 04查询           */
@@ -63,7 +64,7 @@ void Tim3_ISR( void ) interrupt 19
     if( key_value == 15 )
     {
         modbus_04_scan_cnt++;
-        if(( modbus_04_scan_cnt == 500 ) && ( lcd_info.power_on == 1 ))
+        if(( modbus_04_scan_cnt == 500 ) && ( lcd_info.Power_Swtich == 1 ))
         {
             modbus.scan_flag_04_allow = 1;
         }

@@ -46,18 +46,19 @@ typedef struct
 {
     uint8_t  power_level;       
     uint8_t  fan_level;  
-    uint8_t  sync_flag;
+    uint8_t  sync_switch;
     uint8_t  mode_num;
     uint8_t  channel_num;
-    uint8_t  alarm_temp_val;
+    uint8_t  OTP1_alarm_flag;
+    uint8_t  OTP_temp1;
 
     uint8_t  signal_in;
     
     uint8_t lcd_connect_flag;
-    uint8_t fan_rotate_flag;
+    uint8_t sync_icon_ctrl_flag;
     uint8_t alarm_set_flag;
     uint8_t alarm_temp_flick_flag;
-    uint8_t power_on;
+    uint8_t Power_Swtich;
 }LCD_INFO;
 
 extern LCD_INFO lcd_info;
@@ -78,12 +79,13 @@ void sync_dis(uint8_t on_off);
 void alarm_dis(uint8_t on_off);
 void Celsius_dis(uint8_t on_off);
 void mode_dis(uint8_t on_off);
-void percentage_dis(uint8_t on_off);
+void Percentage_dis(uint8_t on_off);
 void fan_center_dis(uint8_t on_off);
 void fan_leaf1_dis(uint8_t on_off);
 void fan_leaf2_dis(uint8_t on_off);
-void fan_rotate( void );
+void sync_icon_ctrl( void );
 void screen_all_dis( void );
-void led_status( uint8_t status); 
+void led_status_ctrl( uint8_t status); 
+void fan_rotate_dis( uint8_t on_off );
 
 #endif

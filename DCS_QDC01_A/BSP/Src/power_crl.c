@@ -15,6 +15,12 @@ void Power_Statu_Init( void )
 {
     power_ctrl.zero_flag = 0;
     temp.temp_scan_flag  = 0;
+    FAN_TMEP = 0;
+    Buzzer = BUZZER_OFF;
+    power_ctrl.Power_Swtich = 0;
+    power_ctrl.AC1_enable = power_ctrl.AC2_enable = power_ctrl.AC3_enable = DISABLE; 
+    power_ctrl.FAN_enable = DISABLE;
+    power_ctrl.time_delay = 61700;
 }
 
 /**
@@ -180,12 +186,13 @@ void ac_dc_ctrl( void )
                                  power_ctrl.signal_flag    == 1 ||    //有24V信号进来
                                  power_ctrl.fan_delay_flag == 1)      //风扇延时输出信号
                                  ? ENABLE : DISABLE;
-    }else
+    }
+    else
     {
         power_ctrl.AC1_enable = power_ctrl.AC2_enable = power_ctrl.AC3_enable = power_ctrl.FAN_enable = DISABLE;
     }
     
-    PWMB_BKR = (power_ctrl.FAN_enable == ENABLE) ? FAN_ON : FAN_OFF;
+    PWMB_BKR = (power_ctrl.FAN_enable == ENABLE) ? 0x80 : 0x00;
 }
 
 

@@ -31,16 +31,13 @@ void main( void )
     EA = 1;     //中断总开关
 
     eeprom_statu_judge();       //EEPROM初始化
-    PWMB_BKR = 0x00; 
-    EX0 = 0;
-    FAN_TMEP = 0;
-    Buzzer = 1;
-    while ( ac_dc.connect_flag == 0 )
+    
+    while ( power_ctrl.Power_Swtich == 0 )
     {
         Modbus_Event();
     }
     
-    printf("========== code start ========== \r\n");
+    printf("==== SW003-20251229 code start ==== \r\n");
 
     while (1)
     {

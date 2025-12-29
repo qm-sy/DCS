@@ -85,22 +85,22 @@ LINK MAP OF MODULE:  ..\Output\DunaCodeScreen (?C_STARTUP)
             CODE    0D9FH     0073H     UNIT         ?PR?_WIND_DIS?TM1722
             CODE    0E12H     006EH     UNIT         ?PR?MODBUS_EVENT?MODBUS_RTU
             CODE    0E80H     0064H     UNIT         ?PR?_MODBUS_CRC16?MODBUS_RTU
-            CODE    0EE4H     0061H     UNIT         ?PR?SEND_TO_SLAVE_06?MODBUS_RTU
-            CODE    0F45H     0060H     UNIT         ?PR?FAN_ROTATE?TM1722
+            CODE    0EE4H     0061H     UNIT         ?PR?write_slave_06?MODBUS_RTU
+            CODE    0F45H     0060H     UNIT         ?PR?sync_icon_ctrl?TM1722
             CODE    0FA5H     005FH     UNIT         ?C_INITSEG
             CODE    1004H     005BH     UNIT         ?PR?SLAVE_SLEEP_CTRL?MODBUS_RTU
             CODE    105FH     005BH     UNIT         ?PR?SLAVE_WORK_CTRL?MODBUS_RTU
             CODE    10BAH     005AH     UNIT         ?PR?MODE_CTRL?KEY
             CODE    1114H     0057H     UNIT         ?PR?_POWER_CTRL?KEY
-            CODE    116BH     0045H     UNIT         ?PR?GET_SLAVE_PARAMS_03?MODBUS_RTU
+            CODE    116BH     0045H     UNIT         ?PR?read_slave_03?MODBUS_RTU
             CODE    11B0H     003FH     UNIT         ?PR?TIM0_ISR?COMMUNICATION
-            CODE    11EFH     003FH     UNIT         ?PR?GET_SLAVE_STATU_04?MODBUS_RTU
+            CODE    11EFH     003FH     UNIT         ?PR?read_slave_04?MODBUS_RTU
             CODE    122EH     003EH     UNIT         ?PR?SCREEN_CLEAR?TM1722
             CODE    126CH     003AH     UNIT         ?PR?SCREEN_ALL_DIS?TM1722
-            CODE    12A6H     002DH     UNIT         ?PR?_POWER_ON_OFF?KEY
+            CODE    12A6H     002DH     UNIT         ?PR?_power_ctrl?KEY
             CODE    12D3H     002CH     UNIT         ?PR?_TM1722_WRITE_BYTE?TM1722
             CODE    12FFH     0029H     UNIT         ?PR?_FAN_CTRL?KEY
-            CODE    1328H     0026H     UNIT         ?PR?_LED_STATUS?TM1722
+            CODE    1328H     0026H     UNIT         ?PR?_led_status_ctrl?TM1722
             CODE    134EH     0024H     UNIT         ?PR?LCD_INFO_INIT?TM1722
             CODE    1372H     0020H     UNIT         ?PR?_DELAY_MS?DELAY
             CODE    1392H     001DH     UNIT         ?PR?CHANNEL_CTRL?KEY
@@ -151,23 +151,23 @@ SEGMENT                                            BIT_GROUP          DATA_GROUP
   +--> ?PR?UART4_INIT?UART
   +--> ?PR?UART4_SEND_STATU_INIT?COMMUNICATION
   +--> ?PR?TIMER0_INIT?TIM
-  +--> ?PR?_LED_STATUS?TM1722
+  +--> ?PR?_led_status_ctrl?TM1722
   +--> ?PR?LCD_INFO_INIT?TM1722
   +--> ?PR?KEY_SCAN?KEY
   +--> ?PR?_DELAY_MS?DELAY
   +--> ?PR?SCREEN_INIT?TM1722
-  +--> ?PR?GET_SLAVE_PARAMS_03?MODBUS_RTU
+  +--> ?PR?read_slave_03?MODBUS_RTU
   +--> ?PR?MODBUS_EVENT?MODBUS_RTU
   +--> ?PR?SCREEN_CLEAR?TM1722
   +--> ?PR?SCREEN_ALL_DIS?TM1722
   +--> ?CO?MAIN
   +--> ?PR?PRINTF?PRINTF
-  +--> ?PR?FAN_ROTATE?TM1722
+  +--> ?PR?sync_icon_ctrl?TM1722
   +--> ?PR?GET_SLAVE_STATUS?MODBUS_RTU
 
 ?PR?KEY_SCAN?KEY                                -----    -----      -----    -----      0108H    0003H
   +--> ?PR?_DELAY_MS?DELAY
-  +--> ?PR?_POWER_ON_OFF?KEY
+  +--> ?PR?_power_ctrl?KEY
   +--> ?PR?_POWER_CTRL?KEY
   +--> ?PR?_FAN_CTRL?KEY
   +--> ?PR?ALARM_TEMP_SET?KEY
@@ -177,8 +177,8 @@ SEGMENT                                            BIT_GROUP          DATA_GROUP
 
 ?PR?_DELAY_MS?DELAY                             -----    -----      0008H    0002H      -----    -----
 
-?PR?_POWER_ON_OFF?KEY                           -----    -----      -----    -----      -----    -----
-  +--> ?PR?_LED_STATUS?TM1722
+?PR?_power_ctrl?KEY                           -----    -----      -----    -----      -----    -----
+  +--> ?PR?_led_status_ctrl?TM1722
 BL51 BANKED LINKER/LOCATER V6.22.4.0                                                  06/03/2025  10:46:41  PAGE 4
 
 
@@ -280,7 +280,7 @@ SEGMENT                                            BIT_GROUP          DATA_GROUP
   +--> ?PR?_CHANNEL_DIS?TM1722
   +--> ?PR?_WIND_DIS?TM1722
   +--> ?PR?_PERCENTAGE_DIS?TM1722
-  +--> ?PR?SEND_TO_SLAVE_06?MODBUS_RTU
+  +--> ?PR?write_slave_06?MODBUS_RTU
 
 ?PR?SCREEN_CLEAR?TM1722                         -----    -----      -----    -----      010BH    0001H
   +--> ?PR?_ALARM_DIS?TM1722
@@ -296,7 +296,7 @@ SEGMENT                                            BIT_GROUP          DATA_GROUP
 ?PR?_MODE_DIS?TM1722                            -----    -----      -----    -----      -----    -----
   +--> ?PR?_SCREEN_WRITE_VAL?TM1722
 
-?PR?SEND_TO_SLAVE_06?MODBUS_RTU                 -----    -----      -----    -----      010BH    0008H
+?PR?write_slave_06?MODBUS_RTU                 -----    -----      -----    -----      010BH    0008H
   +--> ?PR?_MODBUS_CRC16?MODBUS_RTU
   +--> ?PR?_DELAY_MS?DELAY
 BL51 BANKED LINKER/LOCATER V6.22.4.0                                                  06/03/2025  10:46:41  PAGE 6
@@ -311,7 +311,7 @@ SEGMENT                                            BIT_GROUP          DATA_GROUP
 ?PR?SCREEN_DISPLAY?TM1722                       -----    -----      -----    -----      -----    -----
   +--> ?PR?_TM1722_WRITE_BYTE?TM1722
 
-?PR?GET_SLAVE_PARAMS_03?MODBUS_RTU              -----    -----      -----    -----      0108H    0008H
+?PR?read_slave_03?MODBUS_RTU              -----    -----      -----    -----      0108H    0008H
   +--> ?CO?MODBUS_RTU
   +--> ?PR?_DELAY_MS?DELAY
 
@@ -328,9 +328,9 @@ SEGMENT                                            BIT_GROUP          DATA_GROUP
 
 ?PR?MODBUS_FUN4?MODBUS_RTU                      -----    -----      -----    -----      0108H    0003H
   +--> ?PR?_ALARM_DIS?TM1722
-  +--> ?PR?FAN_ROTATE?TM1722
+  +--> ?PR?sync_icon_ctrl?TM1722
 
-?PR?FAN_ROTATE?TM1722                           -----    -----      -----    -----      -----    -----
+?PR?sync_icon_ctrl?TM1722                           -----    -----      -----    -----      -----    -----
   +--> ?PR?_FAN_CENTER_DIS?TM1722
   +--> ?PR?_SYNC_DIS?TM1722
   +--> ?PR?_FAN_LEAF1_DIS?TM1722
@@ -347,12 +347,12 @@ SEGMENT                                            BIT_GROUP          DATA_GROUP
   +--> ?PR?_SCREEN_WRITE_VAL?TM1722
 
 ?PR?MODBUS_FUN6?MODBUS_RTU                      -----    -----      -----    -----      -----    -----
-  +--> ?PR?GET_SLAVE_PARAMS_03?MODBUS_RTU
+  +--> ?PR?read_slave_03?MODBUS_RTU
 
 ?PR?GET_SLAVE_STATUS?MODBUS_RTU                 -----    -----      -----    -----      -----    -----
-  +--> ?PR?GET_SLAVE_STATU_04?MODBUS_RTU
+  +--> ?PR?read_slave_04?MODBUS_RTU
 
-?PR?GET_SLAVE_STATU_04?MODBUS_RTU               -----    -----      -----    -----      0108H    0008H
+?PR?read_slave_04?MODBUS_RTU               -----    -----      -----    -----      0108H    0008H
   +--> ?CO?MODBUS_RTU
   +--> ?PR?_DELAY_MS?DELAY
 
@@ -815,14 +815,14 @@ SYMBOL TABLE OF MODULE:  ..\Output\DunaCodeScreen (?C_STARTUP)
   D:00A8H         PUBLIC        IE
   D:00B8H         PUBLIC        IP
   C:14FFH         PUBLIC        screen_init
-  C:0F45H         PUBLIC        fan_rotate
+  C:0F45H         PUBLIC        sync_icon_ctrl
   C:143BH         PUBLIC        _alarm_dis
   D:0098H         PUBLIC        SCON
   D:0088H         PUBLIC        TCON
   X:0146H         PUBLIC        addr_tab
   C:1520H         PUBLIC        _screen_write_val
   C:14ABH         PUBLIC        _fan_center_dis
-  C:1328H         PUBLIC        _led_status
+  C:1328H         PUBLIC        _led_status_ctrl
   C:126CH         PUBLIC        screen_all_dis
   X:014DH         PUBLIC        lcd_info
   C:148FH         PUBLIC        _percentage_dis
@@ -878,7 +878,7 @@ SYMBOL TABLE OF MODULE:  ..\Output\DunaCodeScreen (?C_STARTUP)
   C:136EH         LINE#         45
   C:1371H         LINE#         46
   -------         ENDPROC       LCD_INFO_INIT
-  -------         PROC          _LED_STATUS
+  -------         PROC          _led_status_ctrl
   D:0007H         SYMBOL        status
   C:1328H         LINE#         48
   C:1328H         LINE#         49
@@ -897,7 +897,7 @@ SYMBOL TABLE OF MODULE:  ..\Output\DunaCodeScreen (?C_STARTUP)
   C:134DH         LINE#         66
   C:134DH         LINE#         67
   C:134DH         LINE#         68
-  -------         ENDPROC       _LED_STATUS
+  -------         ENDPROC       _led_status_ctrl
   -------         PROC          SCREEN_CLEAR
 BL51 BANKED LINKER/LOCATER V6.22.4.0                                                  06/03/2025  10:46:41  PAGE 16
 
@@ -1189,7 +1189,7 @@ SYMBOL TABLE OF MODULE:  ..\Output\DunaCodeScreen (?C_STARTUP)
   C:14F2H         LINE#         347
   C:14F2H         LINE#         348
   -------         ENDPROC       _FAN_LEAF2_DIS
-  -------         PROC          FAN_ROTATE
+  -------         PROC          sync_icon_ctrl
   C:0F45H         LINE#         351
   C:0F45H         LINE#         352
   C:0F45H         LINE#         353
@@ -1228,7 +1228,7 @@ SYMBOL TABLE OF MODULE:  ..\Output\DunaCodeScreen (?C_STARTUP)
   C:0FA4H         LINE#         383
   C:0FA4H         LINE#         384
   C:0FA4H         LINE#         385
-  -------         ENDPROC       FAN_ROTATE
+  -------         ENDPROC       sync_icon_ctrl
   -------         PROC          SCREEN_ALL_DIS
   C:126CH         LINE#         387
   C:126CH         LINE#         388
@@ -1258,7 +1258,7 @@ SYMBOL TABLE OF MODULE:  ..\Output\DunaCodeScreen (?C_STARTUP)
   D:00C8H         PUBLIC        P5
   D:00E8H         PUBLIC        P6
   D:00F8H         PUBLIC        P7
-  C:12A6H         PUBLIC        _power_on_off
+  C:12A6H         PUBLIC        _power_ctrl
 BL51 BANKED LINKER/LOCATER V6.22.4.0                                                  06/03/2025  10:46:41  PAGE 22
 
 
@@ -1388,7 +1388,7 @@ SYMBOL TABLE OF MODULE:  ..\Output\DunaCodeScreen (?C_STARTUP)
   C:0807H         LINE#         129
   C:0807H         LINE#         130
   -------         ENDPROC       KEY_SCAN
-  -------         PROC          _POWER_ON_OFF
+  -------         PROC          _power_ctrl
   D:0007H         SYMBOL        key_ctrl
   C:12A6H         LINE#         132
   C:12A6H         LINE#         133
@@ -1408,7 +1408,7 @@ SYMBOL TABLE OF MODULE:  ..\Output\DunaCodeScreen (?C_STARTUP)
   C:12CBH         LINE#         147
   C:12D2H         LINE#         148
   C:12D2H         LINE#         150
-  -------         ENDPROC       _POWER_ON_OFF
+  -------         ENDPROC       _power_ctrl
   -------         PROC          _POWER_CTRL
   D:0007H         SYMBOL        key_ctrl
   C:1114H         LINE#         152
@@ -1595,7 +1595,7 @@ SYMBOL TABLE OF MODULE:  ..\Output\DunaCodeScreen (?C_STARTUP)
   -------         DO            
   X:016AH         SYMBOL        key_scan_cnt
   X:016CH         SYMBOL        key_read_cnt
-  X:016EH         SYMBOL        fan_rotate_cnt
+  X:016EH         SYMBOL        sync_icon_ctrl_cnt
   X:0170H         SYMBOL        alarm_temp_flick_cnt
   X:0172H         SYMBOL        modbus_04_scan_cnt
   X:0174H         SYMBOL        modbus_04_rcv_over_cnt
@@ -1676,7 +1676,7 @@ SYMBOL TABLE OF MODULE:  ..\Output\DunaCodeScreen (?C_STARTUP)
   D:00A8H         PUBLIC        IE
   B:0080H.4       PUBLIC        DR_485
   D:00B8H         PUBLIC        IP
-  C:11EFH         PUBLIC        get_slave_statu_04
+  C:11EFH         PUBLIC        read_slave_04
   C:0905H         PUBLIC        Modbus_Fun3
   C:0026H         PUBLIC        Modbus_Fun4
 BL51 BANKED LINKER/LOCATER V6.22.4.0                                                  06/03/2025  10:46:41  PAGE 29
@@ -1686,7 +1686,7 @@ SYMBOL TABLE OF MODULE:  ..\Output\DunaCodeScreen (?C_STARTUP)
   C:1004H         PUBLIC        slave_sleep_ctrl
   D:0098H         PUBLIC        SCON
   D:0088H         PUBLIC        TCON
-  C:0EE4H         PUBLIC        send_to_slave_06
+  C:0EE4H         PUBLIC        write_slave_06
   C:0B79H         PUBLIC        send_to_slave_16
   C:1584H         SYMBOL        _?ix1000
   C:158CH         SYMBOL        _?ix1001
@@ -1695,7 +1695,7 @@ SYMBOL TABLE OF MODULE:  ..\Output\DunaCodeScreen (?C_STARTUP)
   C:105FH         PUBLIC        slave_work_ctrl
   C:0091H         PUBLIC        Modbus_Fun16
   D:0084H         PUBLIC        S4CON
-  C:116BH         PUBLIC        get_slave_params_03
+  C:116BH         PUBLIC        read_slave_03
   C:0E80H         PUBLIC        _MODBUS_CRC16
   D:00D0H         PUBLIC        PSW
   -------         PROC          MODBUS_EVENT
@@ -1847,7 +1847,7 @@ SYMBOL TABLE OF MODULE:  ..\Output\DunaCodeScreen (?C_STARTUP)
   C:0EDDH         LINE#         181
   C:0EE3H         LINE#         182
   -------         ENDPROC       _MODBUS_CRC16
-  -------         PROC          GET_SLAVE_PARAMS_03
+  -------         PROC          read_slave_03
   -------         DO            
   X:0108H         SYMBOL        send_buf
   -------         ENDDO         
@@ -1864,8 +1864,8 @@ SYMBOL TABLE OF MODULE:  ..\Output\DunaCodeScreen (?C_STARTUP)
 
   C:11A6H         LINE#         195
   C:11A9H         LINE#         196
-  -------         ENDPROC       GET_SLAVE_PARAMS_03
-  -------         PROC          GET_SLAVE_STATU_04
+  -------         ENDPROC       read_slave_03
+  -------         PROC          read_slave_04
   -------         DO            
   X:0108H         SYMBOL        send_buf
   -------         ENDDO         
@@ -1878,8 +1878,8 @@ SYMBOL TABLE OF MODULE:  ..\Output\DunaCodeScreen (?C_STARTUP)
   C:121DH         LINE#         209
   C:1224H         LINE#         210
   C:1227H         LINE#         211
-  -------         ENDPROC       GET_SLAVE_STATU_04
-  -------         PROC          SEND_TO_SLAVE_06
+  -------         ENDPROC       read_slave_04
+  -------         PROC          write_slave_06
   -------         DO            
   X:010BH         SYMBOL        send_buf
   D:0004H         SYMBOL        crc
@@ -1902,7 +1902,7 @@ SYMBOL TABLE OF MODULE:  ..\Output\DunaCodeScreen (?C_STARTUP)
   C:0F34H         LINE#         236
   C:0F3BH         LINE#         237
   C:0F3EH         LINE#         239
-  -------         ENDPROC       SEND_TO_SLAVE_06
+  -------         ENDPROC       write_slave_06
   -------         PROC          SEND_TO_SLAVE_16
   -------         DO            
   X:010BH         SYMBOL        send_buf

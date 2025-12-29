@@ -22,7 +22,7 @@ void eeprom_statu_judge( void )
         slave_06.sync_switch       = 0;            // 0000 0001  sync默认关
         slave_06.fan_level         = 3;            // 3  风扇默认三档
         slave_06.power_level       = 50;           // 50         220V输出50%功率
-        slave_06.OTP_temp1    = 80;           // 报警温度默认80℃
+        slave_06.OTP_temp1         = 80;           // 报警温度默认80℃
 
         for( i = 0; i < 5; i++ )
         {
